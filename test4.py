@@ -36,13 +36,18 @@ def fetch(PC):
 
 def load_program_into_memory(file_name):
 	all_lines = []
+	all_labels = {}
 	with open(file_name) as test_file:
 		for line in test_file:
-			line = line.replace(',', '')
-			all_lines.append(line.split())
-	return all_lines
+			if ':' in line:
+				all_labels[line.replace(':\n', '')] = (len(all_lines))
+				print(all_labels)
+			else:
+				line = line.replace(',', '')
+				all_lines.append(line.split())
+	return all_lines, all_labels
 
-def decode(PC, all_ins):
+def decode(PC, all_ins, all_labels):
 	ins = all_ins[PC][0]
 	
 	if ins == 'li':
@@ -69,6 +74,12 @@ def decode(PC, all_ins):
 		rs = all_ins[PC][1]
 		rt = all_ins[PC][2]
 		imm = rd = 'X'
+	elif ins == 'j':
+		op = 'please put in something here'
+		func = 'please put in something here'
+		rs = rt = rd = 'X'
+		imm = all_labels[all_ins[PC][1]]
+		
 	else:
 		op = 'your'
 		func = 'mom'
@@ -77,7 +88,7 @@ def decode(PC, all_ins):
 	return ins, op, rs, rt, rd, imm, func
 
 def execute(reg_dict, ins, rs, rt, rd, imm):
-	if ins == 'li':
+	if ins == 'li' or ins == 'j':
 		result = imm
 	elif ins == 'addi':
 		result = int(reg_dict[rs]) + int(imm)
@@ -85,6 +96,8 @@ def execute(reg_dict, ins, rs, rt, rd, imm):
 		result = int(reg_dict[rt])
 	elif ins == 'sw':
 		result = int(reg_dict[rs])
+	#elif ins == 'j':
+		#result = int(imm)
 	else:
 		result = 'your mom'
 		print('im still working on that part') 
@@ -96,13 +109,19 @@ def mem(ins, rs, rt, rd):
 		target = rs
 	elif ins == 'sw':
 		target = rt
+	elif ins == 'j':
+		target = 'PC'
 	else:
-		target = your_mother
+		target = 'your_mother'
 	
 	return target
 
-def write_back(reg_dict, target, result):
-	reg_dict[target] = result
+def write_back(reg_dict, target, result, PC):
+	if target == 'PC':
+		PC = result-1
+	else:
+		reg_dict[target] = result
+	return PC
 
 
 
@@ -112,25 +131,28 @@ print_RF(registers)
 PC = -1
 # UI setup
 user_input = ''
+i = 1
 R = False
 # read file
-all_ins = load_program_into_memory('i_type_test.s')
+all_ins, label_dict = load_program_into_memory('i_type_test.s')
 
 
 # run
-for i in range(len(all_ins)-1):
+while PC < (len(all_ins)-2):
 	if not R:
 		user_input = input('\n      Enter R to run program to completion. Enter any other key to step. >')
 		if user_input.lower() == 'r':
 			R = True
 	PC = fetch(PC)
-	ins, op, rs, rt, rd, imm, func = decode(PC, all_ins)
+	print('\n      PC is', PC)
+	ins, op, rs, rt, rd, imm, func = decode(PC, all_ins, label_dict)
 	result = execute(registers, ins, rs, rt, rd, imm)
 	target = mem(ins, rs, rt, rd)
-	write_back(registers, target, result)
+	PC = write_back(registers, target, result, PC)
 	
 	if not R:
-		print('\n      STEP', i+1, '\n     ', ins, rs, rt, rd, imm, '\n')
+		print('\n      STEP', i, '\n\n     ', ins, rs, rt, rd, imm, '\n')
+		i += 1
 		print_RF(registers)
 
 # for debug
