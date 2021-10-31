@@ -57,6 +57,14 @@ def fetch(PC, all_lines, F):
 		F.rs = all_lines[PC][1]
 		F.rt = all_lines[PC][2]
 		F.rd = 'X'
+	elif F.ins == 'or':
+		F.rs = all_lines[PC][2]
+		F.rt = all_lines[PC][3]
+		F.rd = all_lines[PC][1]
+	elif F.ins == 'xor':
+		F.rs = all_lines[PC][2]
+		F.rt = all_lines[PC][3]
+		F.rd = all_lines[PC][1]
 	elif F.ins == 'add':
 		F.rs = all_lines[PC][2]
 		F.rt = all_lines[PC][3]
@@ -102,6 +110,14 @@ def decode(PC, all_lines, all_labels, D):
 		D.op = '1000'
 		D.func = '000'
 		D.imm = 'X'
+	elif D.ins == 'or':
+		D.op = '0000'
+		D.func = '001'
+		D.imm = 'X'
+	elif D.ins == 'xor':
+		D.op = '0000'
+		D.func = '010'
+		D.imm = 'X'
 	elif D.ins == 'add':
 		D.op = '0000'
 		D.func = '000'
@@ -132,6 +148,10 @@ def execute(reg_dict, E):
 		result = int(reg_dict[E.rt])
 	elif E.ins == 'sw':
 		result = int(reg_dict[E.rs])
+	elif E.ins == 'or':
+		result = int(reg_dict[E.rs]) or int(reg_dict[E.rt])
+	elif E.ins == 'xor':
+		result = int(reg_dict[E.rs]) ^ int(reg_dict[E.rt])
 	elif E.ins == 'add':
 		result = int(reg_dict[E.rs]) + int(reg_dict[E.rt])
 	elif E.ins == 'beq':
@@ -147,7 +167,7 @@ def mem(M):
 		target = M.rs
 	elif M.ins == 'sw':
 		target = M.rt
-	elif M.ins == 'add':
+	elif (M.ins == 'add') or (M.ins == 'or') or (M.ins == 'xor'):
 		target = M.rd
 	elif (M.ins == 'j') or (M.ins == 'beq'):
 		target = 'PC'

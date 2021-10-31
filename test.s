@@ -16,4 +16,6 @@ beq $r0, $r1, right_here 	# if r0 == r1, go to right_here
 j dont_go_there				# jump to the label dont_go_there
 right_here:
 subi $r0, 1000				# r0 = r0 - 1000 = 1300 - 1000 = 300
+or $r0, $r1, $r0			# r0 = r1 or r0
+xor $r0, $r1, $r0			# r0 = r1 xor r0
 dont_go_there:
