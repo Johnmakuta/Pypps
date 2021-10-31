@@ -40,6 +40,10 @@ def load_program_into_memory(file_name):
 			if ':' in line:
 				all_labels[line.replace(':\n', '')] = (len(all_lines))
 				#print(all_labels)
+			elif line.startswith('#'):
+				pass
+			elif line == '\n':
+				pass
 			else:
 				line = line.replace(',', '')
 				all_lines.append(line.split())
@@ -50,16 +54,17 @@ def load_program_into_memory(file_name):
 
 def fetch(PC, all_lines, F):
 	PC += 1
-
+	print(PC, len(all_lines))
+	#print(all_lines)
 	F.ins = all_lines[PC][0]
-	if (F.ins == 'addi') or (F.ins == 'subi') or (F.ins == 'li'):
+	if (F.ins == 'addi') or (F.ins == 'subi') or (F.ins == 'li') or (F.ins == 'sll'):
 		F.rs = all_lines[PC][1]
 		F.rt = F.rd = 'X'
-	elif (F.ins == 'lw') or (F.ins == 'sw') or (F.ins == 'beq'):
+	elif (F.ins == 'lw') or (F.ins == 'sw') or (F.ins == 'beq') or (F.ins == 'ble'):
 		F.rs = all_lines[PC][1]
 		F.rt = all_lines[PC][2]
 		F.rd = 'X'
-	elif (F.ins == 'or') or (F.ins == 'xor') or (F.ins == 'slt') or (F.ins == 'add'):
+	elif (F.ins == 'or') or (F.ins == 'xor') or (F.ins == 'slt') or (F.ins == 'add') or (F.ins == 'div') or (F.ins == 'mul'):
 		F.rs = all_lines[PC][2]
 		F.rt = all_lines[PC][3]
 		F.rd = all_lines[PC][1]
@@ -89,8 +94,10 @@ def fetch(PC, all_lines, F):
 
 def decode(PC, all_lines, all_labels, D):
 	D.ins = all_lines[PC][0]
+	# note to all: these if statements can be 
+	# cleaned up a lot, so feel free to do so
 	
-	# li, addi, subi
+	# li, addi, subi, sll
 	if D.ins == 'li':
 		D.op = '1100'
 		D.func = '000'
@@ -103,8 +110,12 @@ def decode(PC, all_lines, all_labels, D):
 		D.op = '1001'
 		D.func = '000'
 		D.imm = all_lines[PC][2]
+	elif D.ins == 'sll':
+		D.op = '1111'
+		D.func = '000'
+		D.imm = all_lines[PC][2]
 	
-	# lw, sw, beq
+	# lw, sw, beq, ble
 	elif D.ins == 'lw':
 		D.op = '1000'
 		D.func = '000'
@@ -117,8 +128,12 @@ def decode(PC, all_lines, all_labels, D):
 		D.op = '0010'
 		D.func = '000'
 		D.imm = all_labels[all_lines[PC][3]]
+	elif D.ins == 'ble':
+		D.op = '0101'
+		D.func = '000'
+		D.imm = all_labels[all_lines[PC][3]]
 	
-	# or, xor, slt, add
+	# or, xor, slt, add, div, mul
 	elif D.ins == 'or':
 		D.op = '0000'
 		D.func = '001'
@@ -134,6 +149,14 @@ def decode(PC, all_lines, all_labels, D):
 	elif D.ins == 'add':
 		D.op = '0000'
 		D.func = '000'
+		D.imm = 'X'
+	elif D.ins == 'div':
+		D.op = '0000'
+		D.func = '100'
+		D.imm = 'X'
+	elif D.ins == 'mul':
+		D.op = '0000'
+		D.func = '101'
 		D.imm = 'X'
 	
 	# j
@@ -153,13 +176,15 @@ def decode(PC, all_lines, all_labels, D):
 
 
 def execute(reg_dict, E):
-	# li, j, addi, subi
+	# li, j, addi, subi, sll
 	if E.ins == 'li' or E.ins == 'j':
 		result = E.imm
 	elif E.ins == 'addi':
 		result = int(reg_dict[E.rs]) + int(E.imm)
 	elif E.ins == 'subi':
 		result = int(reg_dict[E.rs]) - int(E.imm)
+	elif E.ins == 'sll':
+		result = int(reg_dict[E.rs]) << int(E.imm)
 	
 	# lw, sw, beq	
 	elif E.ins == 'lw':
@@ -168,8 +193,10 @@ def execute(reg_dict, E):
 		result = int(reg_dict[E.rs])
 	elif E.ins == 'beq':
 		result = E.imm if int(reg_dict[E.rs]) == int(reg_dict[E.rt]) else 'none'
+	elif E.ins == 'ble':
+		result = E.imm if int(reg_dict[E.rs]) <= int(reg_dict[E.rt]) else 'none'
 		
-	# or, xor, slt, add
+	# or, xor, slt, add, div, mul
 	elif E.ins == 'or':
 		result = int(reg_dict[E.rs]) or int(reg_dict[E.rt])
 	elif E.ins == 'xor':
@@ -178,6 +205,10 @@ def execute(reg_dict, E):
 		result = 1 if int(reg_dict[E.rs]) < int(reg_dict[E.rt]) else 0
 	elif E.ins == 'add':
 		result = int(reg_dict[E.rs]) + int(reg_dict[E.rt])
+	elif E.ins == 'mul':
+		result = int(reg_dict[E.rs]) * int(reg_dict[E.rt])
+	elif E.ins == 'div':
+		result = int(reg_dict[E.rs]) / int(reg_dict[E.rt])
 	
 	else:
 		result = 'U'
@@ -189,13 +220,13 @@ def execute(reg_dict, E):
 
 
 def mem(M):
-	if (M.ins == 'li') or (M.ins == 'addi') or (M.ins == 'lw') or (M.ins == 'subi'):
+	if (M.ins == 'li') or (M.ins == 'addi') or (M.ins == 'lw') or (M.ins == 'subi') or (M.ins == 'sll'):
 		target = M.rs
 	elif M.ins == 'sw':
 		target = M.rt
-	elif (M.ins == 'add') or (M.ins == 'or') or (M.ins == 'xor') or (M.ins == 'slt'):
+	elif (M.ins == 'add') or (M.ins == 'or') or (M.ins == 'xor') or (M.ins == 'slt') or (M.ins == 'div') or (M.ins == 'mul'):
 		target = M.rd
-	elif (M.ins == 'j') or (M.ins == 'beq'):
+	elif (M.ins == 'j') or (M.ins == 'beq') or (M.ins == 'ble'):
 		target = 'PC'
 	else:
 		target = 'U'
