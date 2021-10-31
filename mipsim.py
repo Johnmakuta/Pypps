@@ -40,39 +40,17 @@ def fetch(PC, all_lines, F):
 	PC += 1
 
 	F.ins = all_lines[PC][0]
-	if F.ins == 'li':
+	if (F.ins == 'addi') or (F.ins == 'subi') or (F.ins == 'li'):
 		F.rs = all_lines[PC][1]
 		F.rt = F.rd = 'X'
-	elif F.ins == 'addi':
-		F.rs = all_lines[PC][1]
-		F.rt = F.rd = 'X'
-	elif F.ins == 'subi':
-		F.rs = all_lines[PC][1]
-		F.rt = F.rd = 'X'
-	elif F.ins == 'lw':
+	elif (F.ins == 'lw') or (F.ins == 'sw') or (F.ins == 'beq'):
 		F.rs = all_lines[PC][1]
 		F.rt = all_lines[PC][2]
 		F.rd = 'X'
-	elif F.ins == 'sw':
-		F.rs = all_lines[PC][1]
-		F.rt = all_lines[PC][2]
-		F.rd = 'X'
-	elif F.ins == 'or':
+	elif (F.ins == 'or') or (F.ins == 'xor') or (F.ins == 'slt') or (F.ins == 'add'):
 		F.rs = all_lines[PC][2]
 		F.rt = all_lines[PC][3]
 		F.rd = all_lines[PC][1]
-	elif F.ins == 'xor':
-		F.rs = all_lines[PC][2]
-		F.rt = all_lines[PC][3]
-		F.rd = all_lines[PC][1]
-	elif F.ins == 'add':
-		F.rs = all_lines[PC][2]
-		F.rt = all_lines[PC][3]
-		F.rd = all_lines[PC][1]
-	elif F.ins == 'beq':
-		F.rs = all_lines[PC][1]
-		F.rt = all_lines[PC][2]
-		F.rd = 'X'
 	elif F.ins == 'j':
 		F.rs = F.rt = F.rd = 'X'	
 	else:

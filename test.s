@@ -18,4 +18,5 @@ right_here:
 subi $r0, 1000				# r0 = r0 - 1000 = 1300 - 1000 = 300
 or $r0, $r1, $r0			# r0 = r1 or r0
 xor $r0, $r1, $r0			# r0 = r1 xor r0
+slt $r2, $r0, $r1			# r2 = 1 if r0 < r1 else 0
 dont_go_there:
