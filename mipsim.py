@@ -54,6 +54,10 @@ def fetch(PC, all_lines, F):
 		F.rs = all_lines[PC][1]
 		F.rt = all_lines[PC][2]
 		F.rd = 'X'
+	elif F.ins == 'add':
+		F.rs = all_lines[PC][2]
+		F.rt = all_lines[PC][3]
+		F.rd = all_lines[PC][1]
 	elif F.ins == 'j':
 		F.rs = F.rt = F.rd = 'X'	
 	else:
@@ -87,6 +91,10 @@ def decode(PC, all_lines, all_labels, D):
 		D.op = '1000'
 		D.func = '000'
 		D.imm = 'X'
+	elif D.ins == 'add':
+		D.op = '0000'
+		D.func = '000'
+		D.imm = 'X'
 	elif D.ins == 'j':
 		D.op = '0001'
 		D.func = '000'
@@ -107,6 +115,8 @@ def execute(reg_dict, E):
 		result = int(reg_dict[E.rt])
 	elif E.ins == 'sw':
 		result = int(reg_dict[E.rs])
+	elif E.ins == 'add':
+		result = int(reg_dict[E.rs]) + int(reg_dict[E.rt])
 	else:
 		result = 'your mom'
 		print('im still working on that part') 
@@ -118,6 +128,8 @@ def mem(M):
 		target = M.rs
 	elif M.ins == 'sw':
 		target = M.rt
+	elif M.ins == 'add':
+		target = M.rd
 	elif M.ins == 'j':
 		target = 'PC'
 	else:
@@ -145,11 +157,11 @@ M = fields()
 user_input = ''
 i = 1
 R = False
-all_lines, all_labels = load_program_into_memory('i_type_test.s')
+all_lines, all_labels = load_program_into_memory('test.s')
 
 
 # RUN
-while PC < (len(all_lines)-2):
+while PC < (len(all_lines)-1):
 	if not R:
 		user_input = input('\n      Enter R to run program to completion. Enter any other key to step. >')
 		if user_input.lower() == 'r':
