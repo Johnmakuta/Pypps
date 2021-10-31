@@ -37,6 +37,8 @@ def load_program_into_memory(file_name):
 	return all_lines, all_labels
 
 def fetch(PC, all_lines, F):
+	PC += 1
+
 	F.ins = all_lines[PC][0]
 	if F.ins == 'li':
 		F.rs = all_lines[PC][1]
@@ -128,7 +130,6 @@ def write_back(reg_dict, target, result, PC):
 		PC = result-1
 	else:
 		reg_dict[target] = result
-		PC += 1
 	return PC
 
 
@@ -136,7 +137,7 @@ def write_back(reg_dict, target, result, PC):
 # setup
 reg_dict = dict([("$r%s" % x, 0) for x in range(4)]) 
 print_RF(reg_dict)
-PC = 0
+PC = -1
 F = fields()
 D = fields()
 E = fields()
@@ -148,7 +149,7 @@ all_lines, all_labels = load_program_into_memory('i_type_test.s')
 
 
 # RUN
-while PC < (len(all_lines)-1):
+while PC < (len(all_lines)-2):
 	if not R:
 		user_input = input('\n      Enter R to run program to completion. Enter any other key to step. >')
 		if user_input.lower() == 'r':
