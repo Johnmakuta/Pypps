@@ -46,6 +46,9 @@ def fetch(PC, all_lines, F):
 	elif F.ins == 'addi':
 		F.rs = all_lines[PC][1]
 		F.rt = F.rd = 'X'
+	elif F.ins == 'subi':
+		F.rs = all_lines[PC][1]
+		F.rt = F.rd = 'X'
 	elif F.ins == 'lw':
 		F.rs = all_lines[PC][1]
 		F.rt = all_lines[PC][2]
@@ -58,10 +61,14 @@ def fetch(PC, all_lines, F):
 		F.rs = all_lines[PC][2]
 		F.rt = all_lines[PC][3]
 		F.rd = all_lines[PC][1]
+	elif F.ins == 'beq':
+		F.rs = all_lines[PC][1]
+		F.rt = all_lines[PC][2]
+		F.rd = 'X'
 	elif F.ins == 'j':
 		F.rs = F.rt = F.rd = 'X'	
 	else:
-		print('im still working on that part') 
+		print('      im still working on that part') 
 	
 	# CHECK FOR A HAZARD BEFORE YOU RETURN
 	# CHECK FOR A HAZARD BEFORE YOU RETURN
@@ -83,6 +90,10 @@ def decode(PC, all_lines, all_labels, D):
 		D.op = '1000'
 		D.func = '000'
 		D.imm = all_lines[PC][2]
+	elif D.ins == 'subi':
+		D.op = '1001'
+		D.func = '000'
+		D.imm = all_lines[PC][2]
 	elif D.ins == 'lw':
 		D.op = '1000'
 		D.func = '000'
@@ -95,6 +106,10 @@ def decode(PC, all_lines, all_labels, D):
 		D.op = '0000'
 		D.func = '000'
 		D.imm = 'X'
+	elif D.ins == 'beq':
+		D.op = '0010'
+		D.func = '000'
+		D.imm = all_labels[all_lines[PC][3]]
 	elif D.ins == 'j':
 		D.op = '0001'
 		D.func = '000'
@@ -102,7 +117,7 @@ def decode(PC, all_lines, all_labels, D):
 	else:
 		D.op = 'your'
 		D.func = 'mom'
-		print('im still working on that part') 
+		print('      im still working on that part') 
 	
 	return D, D
 
@@ -111,26 +126,30 @@ def execute(reg_dict, E):
 		result = E.imm
 	elif E.ins == 'addi':
 		result = int(reg_dict[E.rs]) + int(E.imm)
+	elif E.ins == 'subi':
+		result = int(reg_dict[E.rs]) - int(E.imm)
 	elif E.ins == 'lw':
 		result = int(reg_dict[E.rt])
 	elif E.ins == 'sw':
 		result = int(reg_dict[E.rs])
 	elif E.ins == 'add':
 		result = int(reg_dict[E.rs]) + int(reg_dict[E.rt])
+	elif E.ins == 'beq':
+		result = E.imm if int(reg_dict[E.rs]) == int(reg_dict[E.rt]) else 'none'
 	else:
 		result = 'your mom'
-		print('im still working on that part') 
+		print('      im still working on that part') 
 		
 	return result, E, E
 
 def mem(M):
-	if (M.ins == 'li') or (M.ins == 'addi') or (M.ins == 'lw'):
+	if (M.ins == 'li') or (M.ins == 'addi') or (M.ins == 'lw') or (M.ins == 'subi'):
 		target = M.rs
 	elif M.ins == 'sw':
 		target = M.rt
 	elif M.ins == 'add':
 		target = M.rd
-	elif M.ins == 'j':
+	elif (M.ins == 'j') or (M.ins == 'beq'):
 		target = 'PC'
 	else:
 		target = 'your_mother'
@@ -138,7 +157,9 @@ def mem(M):
 	return target
 
 def write_back(reg_dict, target, result, PC):
-	if target == 'PC':
+	if result == 'none':
+		pass
+	elif target == 'PC':
 		PC = result-1
 	else:
 		reg_dict[target] = result
@@ -180,7 +201,7 @@ while PC < (len(all_lines)-1):
 	PC = write_back(reg_dict, target, result, PC)
 	
 	if not R:
-		print('\n      STEP', i)
+		print('\n      STEP', i) 
 		F.print_fields()
 		i += 1
 		print_RF(reg_dict)
