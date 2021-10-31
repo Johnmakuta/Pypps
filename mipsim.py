@@ -237,15 +237,28 @@ def mem(M):
 
 
 def write_back(reg_dict, target, result, PC):
-	# note to pj: raise and lower overflow and zero flags here
-	# if overflow is raised, calculate the new result value
-	# that is all...
+	# note to pj: test flags
 	if result == 'none':
 		pass
 	elif target == 'PC':
 		PC = result-1
 	else:
+		if int(result) == 0:
+			z = True
+			v = False
+		elif int(result) > 32767:
+			z = False
+			v = True 
+			result = result - 32767
+		elif int(result) < -32768:
+			z = False
+			v = True
+			result = result + 32768
+		else:
+			z = False
+			v = False
 		reg_dict[target] = result
+		
 	return PC
 
 
