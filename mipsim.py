@@ -89,6 +89,8 @@ def fetch(PC, all_lines, F):
 
 def decode(PC, all_lines, all_labels, D):
 	D.ins = all_lines[PC][0]
+	
+	# li, addi, subi
 	if D.ins == 'li':
 		D.op = '1100'
 		D.func = '000'
@@ -101,6 +103,8 @@ def decode(PC, all_lines, all_labels, D):
 		D.op = '1001'
 		D.func = '000'
 		D.imm = all_lines[PC][2]
+	
+	# lw, sw, beq
 	elif D.ins == 'lw':
 		D.op = '1000'
 		D.func = '000'
@@ -109,6 +113,12 @@ def decode(PC, all_lines, all_labels, D):
 		D.op = '1000'
 		D.func = '000'
 		D.imm = 'X'
+	elif D.ins == 'beq':
+		D.op = '0010'
+		D.func = '000'
+		D.imm = all_labels[all_lines[PC][3]]
+	
+	# or, xor, slt, add
 	elif D.ins == 'or':
 		D.op = '0000'
 		D.func = '001'
@@ -117,18 +127,21 @@ def decode(PC, all_lines, all_labels, D):
 		D.op = '0000'
 		D.func = '010'
 		D.imm = 'X'
+	elif D.ins == 'slt':
+		D.op = '0000'
+		D.func = '011'
+		D.imm = 'X'
 	elif D.ins == 'add':
 		D.op = '0000'
 		D.func = '000'
 		D.imm = 'X'
-	elif D.ins == 'beq':
-		D.op = '0010'
-		D.func = '000'
-		D.imm = all_labels[all_lines[PC][3]]
+	
+	# j
 	elif D.ins == 'j':
 		D.op = '0001'
 		D.func = '000'
 		D.imm = all_labels[all_lines[PC][1]]
+		
 	else:
 		D.op = 'U'
 		D.func = 'U'
@@ -140,24 +153,32 @@ def decode(PC, all_lines, all_labels, D):
 
 
 def execute(reg_dict, E):
+	# li, j, addi, subi
 	if E.ins == 'li' or E.ins == 'j':
 		result = E.imm
 	elif E.ins == 'addi':
 		result = int(reg_dict[E.rs]) + int(E.imm)
 	elif E.ins == 'subi':
 		result = int(reg_dict[E.rs]) - int(E.imm)
+	
+	# lw, sw, beq	
 	elif E.ins == 'lw':
 		result = int(reg_dict[E.rt])
 	elif E.ins == 'sw':
 		result = int(reg_dict[E.rs])
+	elif E.ins == 'beq':
+		result = E.imm if int(reg_dict[E.rs]) == int(reg_dict[E.rt]) else 'none'
+		
+	# or, xor, slt, add
 	elif E.ins == 'or':
 		result = int(reg_dict[E.rs]) or int(reg_dict[E.rt])
 	elif E.ins == 'xor':
 		result = int(reg_dict[E.rs]) ^ int(reg_dict[E.rt])
+	elif E.ins == 'slt':
+		result = 1 if int(reg_dict[E.rs]) < int(reg_dict[E.rt]) else 0
 	elif E.ins == 'add':
 		result = int(reg_dict[E.rs]) + int(reg_dict[E.rt])
-	elif E.ins == 'beq':
-		result = E.imm if int(reg_dict[E.rs]) == int(reg_dict[E.rt]) else 'none'
+	
 	else:
 		result = 'U'
 		print('      UNKNOWN') 
@@ -172,7 +193,7 @@ def mem(M):
 		target = M.rs
 	elif M.ins == 'sw':
 		target = M.rt
-	elif (M.ins == 'add') or (M.ins == 'or') or (M.ins == 'xor'):
+	elif (M.ins == 'add') or (M.ins == 'or') or (M.ins == 'xor') or (M.ins == 'slt'):
 		target = M.rd
 	elif (M.ins == 'j') or (M.ins == 'beq'):
 		target = 'PC'
@@ -185,6 +206,9 @@ def mem(M):
 
 
 def write_back(reg_dict, target, result, PC):
+	# note to pj: raise and lower overflow and zero flags here
+	# if overflow is raised, calculate the new result value
+	# that is all...
 	if result == 'none':
 		pass
 	elif target == 'PC':
