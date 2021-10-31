@@ -10,6 +10,9 @@ class fields:
 	def print_fields(self):
 		print('\n     ', self.ins, self.op, self.func, self.rd, self.rs, self.rt, self.imm, '\n')
 
+
+
+
 def all_print_fields(F, D, E, M):
 	print('\n      ')
 	F.print_fields()
@@ -18,10 +21,16 @@ def all_print_fields(F, D, E, M):
 	M.print_fields()
 	print()
 
+
+
+
 def print_RF(RF):
 	for reg, value in RF.items():
 		print("{} {}".format(reg, value))
 	print()
+
+
+
 
 def load_program_into_memory(file_name):
 	all_lines = []
@@ -35,6 +44,9 @@ def load_program_into_memory(file_name):
 				line = line.replace(',', '')
 				all_lines.append(line.split())
 	return all_lines, all_labels
+
+
+
 
 def fetch(PC, all_lines, F):
 	PC += 1
@@ -56,15 +68,24 @@ def fetch(PC, all_lines, F):
 	else:
 		print('      im still working on that part') 
 	
-	# CHECK FOR A HAZARD BEFORE YOU RETURN
-	# CHECK FOR A HAZARD BEFORE YOU RETURN
-	# CHECK FOR A HAZARD BEFORE YOU RETURN
-	# CHECK FOR A HAZARD BEFORE YOU RETURN
-	# CHECK FOR A HAZARD BEFORE YOU RETURN
-	# CHECK FOR A HAZARD BEFORE YOU RETURN
-	# CHECK FOR A HAZARD BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
+	# CHECK FOR HAZARDS BEFORE YOU RETURN
 
 	return PC, F, F
+
+
+
 
 def decode(PC, all_lines, all_labels, D):
 	D.ins = all_lines[PC][0]
@@ -115,6 +136,9 @@ def decode(PC, all_lines, all_labels, D):
 	
 	return D, D
 
+
+
+
 def execute(reg_dict, E):
 	if E.ins == 'li' or E.ins == 'j':
 		result = E.imm
@@ -140,6 +164,9 @@ def execute(reg_dict, E):
 		
 	return result, E, E
 
+
+
+
 def mem(M):
 	if (M.ins == 'li') or (M.ins == 'addi') or (M.ins == 'lw') or (M.ins == 'subi'):
 		target = M.rs
@@ -154,6 +181,9 @@ def mem(M):
 	
 	return target
 
+
+
+
 def write_back(reg_dict, target, result, PC):
 	if result == 'none':
 		pass
@@ -162,6 +192,10 @@ def write_back(reg_dict, target, result, PC):
 	else:
 		reg_dict[target] = result
 	return PC
+
+
+
+
 
 
 
