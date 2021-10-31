@@ -66,7 +66,7 @@ def fetch(PC, all_lines, F):
 	elif F.ins == 'j':
 		F.rs = F.rt = F.rd = 'X'	
 	else:
-		print('      im still working on that part') 
+		print('      UNKNOWN') 
 	
 	# CHECK FOR HAZARDS BEFORE YOU RETURN
 	# CHECK FOR HAZARDS BEFORE YOU RETURN
@@ -130,9 +130,9 @@ def decode(PC, all_lines, all_labels, D):
 		D.func = '000'
 		D.imm = all_labels[all_lines[PC][1]]
 	else:
-		D.op = 'your'
-		D.func = 'mom'
-		print('      im still working on that part') 
+		D.op = 'U'
+		D.func = 'U'
+		print('      UNKNOWN') 
 	
 	return D, D
 
@@ -159,8 +159,8 @@ def execute(reg_dict, E):
 	elif E.ins == 'beq':
 		result = E.imm if int(reg_dict[E.rs]) == int(reg_dict[E.rt]) else 'none'
 	else:
-		result = 'your mom'
-		print('      im still working on that part') 
+		result = 'U'
+		print('      UNKNOWN') 
 		
 	return result, E, E
 
@@ -177,7 +177,7 @@ def mem(M):
 	elif (M.ins == 'j') or (M.ins == 'beq'):
 		target = 'PC'
 	else:
-		target = 'your_mother'
+		target = 'U'
 	
 	return target
 
