@@ -54,8 +54,6 @@ def load_program_into_memory(file_name):
 
 def fetch(PC, all_lines, F):
 	PC += 1
-	print(PC, len(all_lines))
-	#print(all_lines)
 	F.ins = all_lines[PC][0]
 	if (F.ins == 'addi') or (F.ins == 'subi') or (F.ins == 'li') or (F.ins == 'sll'):
 		F.rs = all_lines[PC][1]
@@ -238,6 +236,7 @@ def mem(M):
 
 def write_back(reg_dict, target, result, PC):
 	# note to pj: test flags
+	z = v = False
 	if result == 'none':
 		pass
 	elif target == 'PC':
@@ -259,7 +258,7 @@ def write_back(reg_dict, target, result, PC):
 			v = False
 		reg_dict[target] = result
 		
-	return PC
+	return PC, z, v
 
 
 
@@ -277,7 +276,7 @@ E = fields()
 M = fields()
 user_input = ''
 i = 1
-R = False
+z = v = R = False
 all_lines, all_labels = load_program_into_memory('test.s')
 
 
@@ -290,22 +289,25 @@ while PC < (len(all_lines)-1):
 		
 	PC, F, D = fetch(PC, all_lines, F)
 	
-	print('\n      PC is', PC)
-	
 	D, E = decode(PC, all_lines, all_labels, D)
 	
 	result, E, M = execute(reg_dict, E)
 	
 	target = mem(M)
 	
-	PC = write_back(reg_dict, target, result, PC)
+	PC, z, v = write_back(reg_dict, target, result, PC)
 	
 	if not R:
+		#print('\n      PC is', PC)
 		print('\n      STEP', i) 
 		F.print_fields()
 		i += 1
 		print_RF(reg_dict)
+		print('Zero:', z, '\nOverflow:', v)
+
+print()
 
 if(R):
 	print('\n      FINAL\n')
 	print_RF(reg_dict)
+	print('Zero:', z, '\nOverflow:', v, '\n')
