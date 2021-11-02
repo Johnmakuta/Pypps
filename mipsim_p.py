@@ -47,71 +47,42 @@ def load_program_into_memory(file_name):
 			else:
 				line = line.replace(',', '')
 				line = line.split()
-				print('HEY', line, 'AAAAAAAAAHHHHHHHHHHH', all_lines, 'HEY HEY HEY')
-				print(len(line))
 				if (len(line) > 3) and (len(all_lines) > 0):
 					if (len(line) > 3) and (len(all_lines) > 0):
 						all_lines.append('NOP1')
 						all_lines.append('NOP2')
 						all_lines.append(line)
-						print('1tttttttttt')
 					else:
 						all_lines.append(line)
-						print('lmao1')
 				elif (len(line) > 2) and (len(all_lines) > 0):
 					if line[1] in all_lines[len(all_lines)-1] or line[2] in all_lines[len(all_lines)-1]:
 						all_lines.append('NOP3')
 						all_lines.append('NOP4')
 						all_lines.append(line)
-						print('ttttttttttt2')
 					else:
 						all_lines.append(line)
-						print('lmao2')
 				else:
 					all_lines.append(line)
 					all_lines.append('NOP5')
 					all_lines.append('NOP6')
 					all_lines.append('NOP7')
-					print('lmaooooooooo')
 					
 				if (line[0] == 'beq') or (line[0] == 'ble'):
-					all_lines.append('NOP')
-					all_lines.append('NOP')
-					all_lines.append('NOP')
+					all_lines.append('NOP8')
+					all_lines.append('NOP9')
+					all_lines.append('NOP10')
 				
 					
 	print(all_lines)
 	return all_lines, all_labels
 
-
-class hazard_info:
-	def __init__(self):
-		self.stall_cycles = 0
-		self.hazard = 0
-
-def hazard_check(F, D, H_I, PC):
-	if not D.rd.startswith('$'):
-		H_I.hazard = False
-	elif H_I.stall_cycles != 0:
-		H_I.stall_cycles -= 1
-		H_I.hazard = True
-	elif (D.rd == F.rs) or (D.rd == F.rt):
-		H_I.stall_cycles = 2
-		H_I.hazard = True
-	else:
-		H_I.hazard = False
-		
-	return H_I
-
-def fetch(PC, all_lines, F, D_prev, H_I):
+def fetch(PC, all_lines, F):
 	PC += 1
-	print_RF(reg_dict)
-	print('fetch', PC)
 	print(len(all_lines), PC)
 	F.ins = all_lines[PC][0]
 	if F.ins == 'N':
 		F.rd = F.rt = F.rs = 'X'
-		return PC, F, H_I
+		return PC, F
 	if (F.ins == 'addi') or (F.ins == 'subi') or (F.ins == 'li') or (F.ins == 'sll'):
 		F.rd = all_lines[PC][1]
 		F.rt = F.rs = 'X'
@@ -129,37 +100,19 @@ def fetch(PC, all_lines, F, D_prev, H_I):
 		print(F.ins)
 		print('      UNKNOWN') 
 	
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	#H_I = hazard_check(F, D_prev, H_I, PC)
-	#print('\n      PC is', PC, H_I.hazard)
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	# CHECK FOR HAZARDS BEFORE YOU RETURN
-	
-	return PC, F, H_I
+	return PC, F
 
 
 
 
 def decode(PC, all_lines, all_labels, F):
-	print_RF(reg_dict)
-	print('decode', PC)
+
 	D = copy.deepcopy(F)
 	D.ins = all_lines[PC][0]
 	if D.ins == 'N':
 		D.op = D.func = D.imm = 'X'
 		return D
-	# note to all: these if statements can be 
-	# cleaned up a lot, so feel free to do so
+		
 	# li, addi, subi, sll
 	if D.ins == 'li':
 		D.op = '1100'
@@ -239,8 +192,7 @@ def decode(PC, all_lines, all_labels, F):
 
 
 def execute(reg_dict, D):
-	print_RF(reg_dict)
-	print('execute', PC)
+
 	E = copy.deepcopy(D)
 	if E.ins == 'N':
 		E.result = 'X'
@@ -289,8 +241,7 @@ def execute(reg_dict, D):
 
 
 def mem(E):
-	print_RF(reg_dict)
-	print('mem', PC)
+
 	M = copy.deepcopy(E)
 	if M.ins == 'N':
 		target = 'X'
@@ -312,8 +263,7 @@ def mem(E):
 
 
 def write_back(reg_dict, target, PC, M):
-	print_RF(reg_dict)
-	print('wb', PC)
+
 	# note to pj: test flags
 	if M.ins == 'N':
 		z = False
@@ -360,7 +310,6 @@ F = fields()
 D = fields()
 E = fields()
 M = fields()
-H_I = hazard_info()
 user_input = ''
 i = 1
 z = v = R = False
@@ -368,7 +317,7 @@ all_lines, all_labels = load_program_into_memory('test.s')
 
 
 # RUN
-while PC < (len(all_lines)-1):
+while PC < (len(all_lines)-2):
 	if not R:
 		user_input = input('\n      Enter R to run program to completion. Enter any other key to step. >')
 		if user_input.lower() == 'r':
@@ -377,14 +326,14 @@ while PC < (len(all_lines)-1):
 	lines_left = (len(all_lines)-1) - PC
 	
 	#1
-	PC, F, H_I = fetch(PC, all_lines, F, D, H_I)
+	PC, F = fetch(PC, all_lines, F)
 	all_print_fields(F,D,E,M)
 
 	
 	#2
 	D = decode(PC, all_lines, all_labels, F)
 	all_print_fields(F,D,E,M)
-	PC, F, H_I = fetch(PC, all_lines, F, D, H_I)	
+	PC, F = fetch(PC, all_lines, F)	
 	all_print_fields(F,D,E,M)
 	
 	#3
@@ -393,7 +342,7 @@ while PC < (len(all_lines)-1):
 	all_print_fields(F,D,E,M)
 	D = decode(PC, all_lines, all_labels, F)
 	all_print_fields(F,D,E,M)
-	PC, F, H_I = fetch(PC, all_lines, F, D, H_I)
+	PC, F = fetch(PC, all_lines, F)
 	all_print_fields(F,D,E,M)
 	
 	#4
@@ -403,7 +352,7 @@ while PC < (len(all_lines)-1):
 	all_print_fields(F,D,E,M)
 	D = decode(PC, all_lines, all_labels, F)
 	all_print_fields(F,D,E,M)
-	PC, F, H_I = fetch(PC, all_lines, F, D, H_I)
+	PC, F = fetch(PC, all_lines, F)
 	
 	#5
 	PC, z, v = write_back(reg_dict, target, PC, M)
@@ -431,9 +380,6 @@ while PC < (len(all_lines)-1):
 	#8
 	PC, z, v = write_back(reg_dict, target, PC, M)
 	all_print_fields(F,D,E,M)
-	
-	if lines_left == 0:
-		break
 	
 	
 	if not R:
