@@ -21,7 +21,6 @@ li $r2, 2					# r2 = 2
 div $r1, $r1, $r2			# r1 = r1 / r2 = 1300 / 2 = 650
 sll $r1, 2					# r1 = r1 << 2
 ble $r1, $r2, woo			# if r1 <= r2, go to woo (it wont go)
-mul $r1, $r1, $r0			# r1 = r1 * r0 = 0
 
 woo:
 dont_go_there:
