@@ -368,7 +368,7 @@ all_lines, all_labels = load_program_into_memory('test.s')
 
 
 # RUN
-while PC < (len(all_lines)-2):
+while PC < (len(all_lines)-1):
 	if not R:
 		user_input = input('\n      Enter R to run program to completion. Enter any other key to step. >')
 		if user_input.lower() == 'r':
@@ -432,7 +432,8 @@ while PC < (len(all_lines)-2):
 	PC, z, v = write_back(reg_dict, target, PC, M)
 	all_print_fields(F,D,E,M)
 	
-	
+	if lines_left == 0:
+		break
 	
 	
 	if not R:
