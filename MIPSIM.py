@@ -58,46 +58,42 @@ def print_RF_string(RF):
 
 
 def load_program_into_memory(file_name):
-	all_lines = []
+	all_lines, line = [], []
 	all_labels = {}
+	H = False
+	dummy = ''
 	with open(file_name) as test_file:
-		for line in test_file:
-			if ':' in line:
-				all_labels[line.replace(':\n', '')] = (len(all_lines))
-			elif line.startswith('#') or (line == '\n'):
+		for file_line in test_file:
+			if file_line.startswith('#') or file_line == '\n':
 				pass
 			else:
-				line = line.replace(',', '')
-				line = line.split()
-				if (len(line) > 3) and (len(all_lines) > 0):
-					if (len(line) > 3) and (len(all_lines) > 0):
-						all_lines.append(['NOP'])
-						all_lines.append(['NOP'])
-						all_lines.append(['NOP'])
-						all_lines.append(line)
-					else:
-						all_lines.append(line)
-				elif (len(line) > 2) and (len(all_lines) > 0):
-					if line[1] in all_lines[len(all_lines)-1] or line[2] in all_lines[len(all_lines)-1]:
-						all_lines.append(['NOP'])
-						all_lines.append(['NOP'])
-						all_lines.append(['NOP'])
-						all_lines.append(line)
-					else:
-						all_lines.append(line)
+				file_line = file_line.replace(',', '')
+				file_line = file_line.split()
+				line.append(file_line)
+			
+	for i in range(len(line)):
+		print(line[i])
+		if any(':' in word for word in line[i]):
+			print('HERE')
+			all_labels[line[i][0].replace(':', '')] = (len(all_lines))
+		else:
+			if not i+1 > len(line)-1:
+				for j in range(1, len(line[i])):
+					print(len(line),len(line[i]), i, j)
+					if any(word in line[i][j] for word in line[i+1]) or (line[i][0] == 'beq') or (line[i][0] == 'ble') or (line[i][0] == 'j'):
+						print('TRUE',line[i][j], line[i+1])
+						H = True
+						
+				if H:
+					all_lines.append(line[i])
+					all_lines.append(['NOP'])
+					all_lines.append(['NOP'])
+					all_lines.append(['NOP'])
+					H = False
 				else:
-					all_lines.append(line)
-					all_lines.append(['NOP'])
-					all_lines.append(['NOP'])
-					all_lines.append(['NOP'])
-					
-				if (line[0] == 'beq') or (line[0] == 'ble'):
-					all_lines.append(['NOP'])
-					all_lines.append(['NOP'])
-					all_lines.append(['NOP'])
+					all_lines.append(line[i])
 				
-					
-	print(all_lines)
+	print(all_lines, '\n', all_labels)
 	return all_lines, all_labels
 
 def fetch(PC, all_lines, F):
@@ -406,6 +402,8 @@ while True:
 	i = 1
 	z, v, R, SO, RS = (False,)*5
 	all_lines, all_labels = load_program_into_memory(file_name_input)
+	if len(all_lines) == 0:
+		exit(0)
 	
 	# RUN
 	while PC < (len(all_lines)-2):
