@@ -92,7 +92,7 @@ def load_program_into_memory(file_name):
 					H = False
 				else:
 					all_lines.append(line[i])
-				
+	all_lines.append(line[i])
 	print(all_lines, '\n', all_labels)
 	return all_lines, all_labels
 
