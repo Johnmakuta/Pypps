@@ -72,16 +72,12 @@ def load_program_into_memory(file_name):
 				line.append(file_line)
 			
 	for i in range(len(line)):
-		print(line[i])
 		if any(':' in word for word in line[i]):
-			print('HERE')
 			all_labels[line[i][0].replace(':', '')] = (len(all_lines))
 		else:
 			if not i+1 > len(line)-1:
 				for j in range(1, len(line[i])):
-					print(len(line),len(line[i]), i, j)
 					if any(word in line[i][j] for word in line[i+1]) or (line[i][0] == 'beq') or (line[i][0] == 'ble') or (line[i][0] == 'j'):
-						print('TRUE',line[i][j], line[i+1])
 						H = True
 						
 				if H:
@@ -93,7 +89,6 @@ def load_program_into_memory(file_name):
 				else:
 					all_lines.append(line[i])
 	all_lines.append(line[i])
-	print(all_lines, '\n', all_labels)
 	return all_lines, all_labels
 
 def fetch(PC, all_lines, F):
