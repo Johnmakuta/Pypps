@@ -32,21 +32,44 @@ def print_RF(RF):
 
 
 
-def load_program_into_memory(file_name):
+def load_program_into_memory(file_name, memory):
 	all_lines = []
 	all_labels = {}
+	data_sec = True	# Check for Data Section of Program
 	with open(file_name) as test_file:
 		for line in test_file:
-			if ':' in line:
-				all_labels[line.replace(':\n', '')] = (len(all_lines))
-				#print(all_labels)
-			elif line.startswith('#'):
-				pass
-			elif line == '\n':
-				pass
+			if ".data" in line:
+				data_sec = True
+				continue
+			if ".text" in line:
+				data_sec = False
+				continue
 			else:
-				line = line.replace(',', '')
-				all_lines.append(line.split())
+				# .text section
+				if ':' in line:
+					all_labels[line.replace(':\n', '')] = (len(all_lines))
+					#print(all_labels)
+				elif line.startswith('#'):
+					pass
+				elif line == '\n':
+					pass
+				elif data_sec:
+					array = line.replace(':', '')
+					array = array.replace('\n', '').split()
+					print('ahahahahah', array)
+					array[0] = 'zaro'
+					print('ahahahahah', array)
+					print(array[0])
+					print(array[1])
+					print(array[2])
+					#size = int(array[2])
+					#print(size)
+					#size = int(int(array[2])/4)
+
+					#memory[array[0]] = list(0 for n in range(size))
+				else:
+					line = line.replace(',', '')
+					all_lines.append(line.split())
 	return all_lines, all_labels
 
 
@@ -268,6 +291,7 @@ def write_back(reg_dict, target, result, PC):
 
 # setup
 reg_dict = dict([("$r%s" % x, 0) for x in range(4)]) 
+memory = {}
 print_RF(reg_dict)
 PC = -1
 F = fields()
@@ -277,7 +301,7 @@ M = fields()
 user_input = ''
 i = 1
 z = v = R = False
-all_lines, all_labels = load_program_into_memory('test.s')
+all_lines, all_labels = load_program_into_memory('array_test.s', memory)
 
 
 # RUN
