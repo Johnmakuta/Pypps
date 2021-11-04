@@ -1,5 +1,16 @@
+#!/usr/bin/python
+import sys
+from os import path
 import copy
 import PySimpleGUI as sg
+
+if len(sys.argv) < 2:
+	print('Error. Usage: python3 MIPSIM.py filename\nExiting.')
+	exit(0)
+file_name_input = str(sys.argv[1])
+if not path.exists(file_name_input):
+	print('Error. File not found.\nExiting.')
+	exit(0)
 
 class fields:
 	def __init__(self):
@@ -392,7 +403,7 @@ while True:
 	user_input = ''
 	i = 1
 	z, v, R, SO, RS = (False,)*5
-	all_lines, all_labels = load_program_into_memory('test.s')
+	all_lines, all_labels = load_program_into_memory(file_name_input)
 	
 	# RUN
 	while PC < (len(all_lines)-2):
