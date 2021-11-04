@@ -73,11 +73,13 @@ def load_program_into_memory(file_name):
 					if (len(line) > 3) and (len(all_lines) > 0):
 						all_lines.append(['NOP'])
 						all_lines.append(['NOP'])
+						all_lines.append(['NOP'])
 						all_lines.append(line)
 					else:
 						all_lines.append(line)
 				elif (len(line) > 2) and (len(all_lines) > 0):
 					if line[1] in all_lines[len(all_lines)-1] or line[2] in all_lines[len(all_lines)-1]:
+						all_lines.append(['NOP'])
 						all_lines.append(['NOP'])
 						all_lines.append(['NOP'])
 						all_lines.append(line)
@@ -95,7 +97,7 @@ def load_program_into_memory(file_name):
 					all_lines.append(['NOP'])
 				
 					
-	#print(all_lines)
+	print(all_lines)
 	return all_lines, all_labels
 
 def fetch(PC, all_lines, F):
