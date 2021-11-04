@@ -1,5 +1,6 @@
 # Pypps
 Making a Python based MIPS simulator.
 
-# Current Progess
-Well, we made this.......UwU.
+Usage: 
+(run the run.sh file)
+

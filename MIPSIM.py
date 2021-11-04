@@ -22,33 +22,12 @@ class fields:
 		self.rt = 'U'
 		self.imm = 'U'
 		self.result = 'U'
-	def print_fields(self):
-		print('     ', self.ins, self.op, self.func, self.rd, self.rs, self.rt, self.imm)
 	def print_fields_string(self):
 		if self.ins == 'U':
 			return ''
 		if self.ins == 'NOP':
 			return '(NO OPERATION)'
 		return 'instruction: ' + str(self.ins) + '\n' + str(self.op) + ' ' + str(self.func) + ' ' + str(self.rd) + ' ' + str(self.rs) + ' ' + str(self.rt) + ' ' + str(self.imm)
-
-
-
-
-def all_print_fields(F, D, E, M):
-	print('\n      ')
-	F.print_fields()
-	D.print_fields()
-	E.print_fields()
-	M.print_fields()
-	print()
-
-
-
-
-def print_RF(RF):
-	for reg, value in RF.items():
-		print("{} {}".format(reg, value))
-	print()
 
 def print_RF_string(RF):
 	string = ''
@@ -110,9 +89,6 @@ def fetch(PC, all_lines, F):
 		F.rt = all_lines[PC][3]
 	elif F.ins == 'j':
 		F.rs = F.rt = F.rd = 'X'	
-	else:
-		print(F.ins)
-		print('      UNKNOWN') 
 	
 	return PC, F
 
@@ -198,7 +174,6 @@ def decode(PC, all_lines, all_labels, F):
 	else:
 		D.op = 'U'
 		D.func = 'U'
-		print('      UNKNOWN') 
 	
 	return D
 
@@ -247,7 +222,6 @@ def execute(reg_dict, D):
 	
 	else:
 		result = 'U'
-		print('      UNKNOWN') 
 		
 	return E
 
@@ -306,19 +280,10 @@ def write_back(reg_dict, target, PC, M, window):
 			z = False
 			v = False
 		reg_dict[target] = result
-	#reg_dict[target] = result
+  
 	window['-FLAGTEXT-'].update('Flags\n' + 'Zero: ' + str(z) + '\nOverflow: ' + str(v))
 	
 	return PC, z, v, W
-
-
-
-def print_all_lines(line_to_print):
-	string = ''
-	print('\n      ')
-	for word in line_to_print:
-		string = string + word + ' '
-	print(string)
 
 # GUI
 #sg.theme('DarkTanBlue')
@@ -386,7 +351,6 @@ while True:
 	# setup
 	REG_NUM = 8
 	reg_dict = dict([("$r%s" % x, 0) for x in range(REG_NUM)]) 
-	#print_RF(reg_dict)
 	PC = -1
 	F = fields()
 	D = fields()
