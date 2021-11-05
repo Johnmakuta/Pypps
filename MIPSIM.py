@@ -215,26 +215,30 @@ def add_2_to(dict):
     return dict
 
 def insert(PC, imm, all_lines, all_labels):
-	print(all_labels)
+	NN = False
+	for j in range(1, len(all_lines[PC])):
+		dummy_line = copy.deepcopy(all_lines[imm])
+		if len(dummy_line) > 1:
+			dummy_line.pop(1)
+		if any(word in all_lines[PC][j] for word in dummy_line):
+			NN = True
 	if PC != imm:
-			print('PC != imm', PC, imm)
-			all_lines[PC][0] = 'NOP'
-			if (PC+1) != imm:
-				print('PC+1 != imm', PC+1, imm)
-				all_lines[PC+1][0] = 'NOP'
-			else:
+		all_lines[PC][0] = 'NOP'
+		if (PC+1) != imm:
+			all_lines[PC+1][0] = 'NOP'
+		else:
+			if NN:
 				all_lines.insert((PC), ['NOP'])
 				all_labels = add_1_to(all_labels)
-				imm += 1
-				
 	else:
-		all_lines.insert((PC), ['NOP'])
-		all_lines.insert((PC), ['NOP'])	
-		all_labels = add_2_to(all_labels)
-		imm += 2
-	
-	print(all_labels)
+		if NN:
+			all_lines.insert((PC), ['NOP'])
+			all_lines.insert((PC), ['NOP'])
+			all_labels = add_2_to(all_labels)    
 
+
+
+	
 	return all_labels, imm
 
 def execute(reg_dict, E, D, F, PC, all_labels):
@@ -446,7 +450,7 @@ while True:
 		
 		#1
 		PC, F = fetch(PC, all_lines, F)
-		
+
 		if not SO and not R:
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
