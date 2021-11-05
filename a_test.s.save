@@ -1,0 +1,26 @@
+else:
+				# .text section
+				if ':' in line:
+					all_labels[line.replace(':\n', '')] = (len(all_lines))
+					#print(all_labels)
+				elif line.startswith('#'):
+					pass
+				elif line == '\n':
+					pass
+				elif data_sec:
+					array = line.replace(':', '')
+					array = array.replace('\n', '').split()
+					print('ahahahahah', array)
+					array[0] = 'zaro'
+					print('ahahahahah', array)
+					print(array[0])
+					print(array[1])
+					print(array[2])
+					#size = int(array[2])
+					#print(size)
+					#size = int(int(array[2])/4)
+
+					#memory[array[0]] = list(0 for n in range(size))
+				else:
+					line = line.replace(',', '')
+					all_lines.append(line.split())
