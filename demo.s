@@ -4,13 +4,16 @@ j over_there
 
 addi $r0, 100				
 
+
 over_there:
 addi $r0, 50				
 sw $r0, $r1					
 add $r0, $r0, $r0 			
 lw $r1, $r0					
 beq $r0, $r1, right_here 	
-j dont_go_there				
+
+j dont_go_there		
+
 right_here:
 subi $r0, 1000				
 or $r0, $r1, $r0			

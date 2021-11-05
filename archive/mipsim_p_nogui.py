@@ -73,7 +73,7 @@ def load_program_into_memory(file_name):
 					all_lines.append('NOP10')
 				
 					
-	print(all_lines, all_labels)
+	print(all_lines)
 	return all_lines, all_labels
 
 def fetch(PC, all_lines, F):

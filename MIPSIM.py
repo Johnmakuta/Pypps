@@ -37,28 +37,46 @@ def print_RF_string(RF):
 
 
 def load_program_into_memory(file_name):
-	all_lines, line = [], []
-	all_labels = {}
-	H = False
-	dummy = ''
+	all_lines, line, dummy_line = [], [], []
+	all_labels, memory = {}, {}
+	H, data_mode = False, False
 	with open(file_name) as test_file:
 		for file_line in test_file:
-			if file_line.startswith('#') or file_line == '\n':
+			if file_line.startswith('#') or file_line == '\n' or file_line == '':
 				pass
 			else:
 				file_line = file_line.replace(',', '')
 				file_line = file_line.split()
 				line.append(file_line)
 			
+
+
+
 	for i in range(len(line)):
-		if any(':' in word for word in line[i]):
+		if any('.data' in word for word in line[i]):
+			data_mode = True
+			continue
+		elif any('.text' in word for word in line[i]):
+			data_mode = False
+			continue
+
+		elif any(':' in word for word in line[i]) and not data_mode:
 			all_labels[line[i][0].replace(':', '')] = (len(all_lines))
-		else:
+		elif data_mode:
+			#print(line[i])
+			#print(int(int(line[i][2]))/2)
+			size = round(int(int(line[i][2]))/2)
+			memory[line[i][0]] = list(0  for n in range(size))
+
+		elif not data_mode:
 			if not i+1 > len(line)-1:
 				for j in range(1, len(line[i])):
-					if any(word in line[i][j] for word in line[i+1]) or (line[i][0] == 'beq') or (line[i][0] == 'ble') or (line[i][0] == 'j'):
+					dummy_line = copy.deepcopy(line[i+1])
+					if len(dummy_line) > 1:
+						dummy_line.pop(1)
+					if any(word in line[i][j] for word in line[i+1]) and not line[i][0] == 'j':
 						H = True
-						
+
 				if H:
 					all_lines.append(line[i])
 					all_lines.append(['NOP'])
@@ -67,8 +85,16 @@ def load_program_into_memory(file_name):
 					H = False
 				else:
 					all_lines.append(line[i])
-	all_lines.append(line[i])
-	return all_lines, all_labels
+
+
+
+
+	if not any(':' in word for word in line[i]) and not data_mode:
+		all_lines.append(line[i])
+	#print(memory)
+	print(all_lines)
+	#exit(0)
+	return all_lines, all_labels, memory
 
 def fetch(PC, all_lines, F):
 	PC += 1
@@ -178,17 +204,56 @@ def decode(PC, all_lines, all_labels, F):
 	return D
 
 
+def add_1_to(dict):
+    for entry in dict.items():
+       dict[entry[0]] = entry[1] + 1
+    return dict
 
+def add_2_to(dict):
+    for entry in dict.items():
+       dict[entry[0]] = entry[1] + 2
+    return dict
 
-def execute(reg_dict, D):
+def insert(PC, imm, all_lines, all_labels):
+	print(all_labels)
+	if PC != imm:
+			print('PC != imm', PC, imm)
+			all_lines[PC][0] = 'NOP'
+			if (PC+1) != imm:
+				print('PC+1 != imm', PC+1, imm)
+				all_lines[PC+1][0] = 'NOP'
+			else:
+				all_lines.insert((PC), ['NOP'])
+				all_labels = add_1_to(all_labels)
+				imm += 1
+				
+	else:
+		all_lines.insert((PC), ['NOP'])
+		all_lines.insert((PC), ['NOP'])	
+		all_labels = add_2_to(all_labels)
+		imm += 2
+	
+	print(all_labels)
 
+	return all_labels, imm
+
+def execute(reg_dict, E, D, F, PC, all_labels):
 	E = copy.deepcopy(D)
+	print(E.ins)
 	if E.ins == 'NOP':
+		#print('here', E.ins)
 		E.result = 'X'
-		return E
+		return E, D, F, all_labels
 	# li, j, addi, subi, sll
-	if E.ins == 'li' or E.ins == 'j':
+	if E.ins == 'li':
 		E.result = E.imm
+	elif E.ins == 'j':
+		E.result = E.imm
+		all_labels, E.result = insert(PC, E.imm, all_lines, all_labels)	
+			
+		
+		
+
 	elif E.ins == 'addi':
 		E.result = int(reg_dict[E.rd]) + int(E.imm)
 	elif E.ins == 'subi':
@@ -203,8 +268,14 @@ def execute(reg_dict, D):
 		E.result = int(reg_dict[E.rd])
 	elif E.ins == 'beq':
 		E.result = E.imm if int(reg_dict[E.rd]) == int(reg_dict[E.rs]) else 'none'
+		if E.result != 'none':
+			all_labels, E.result = insert(PC, E.imm, all_lines, all_labels)	
+
 	elif E.ins == 'ble':
 		E.result = E.imm if int(reg_dict[E.rd]) <= int(reg_dict[E.rs]) else 'none'
+		if E.result != 'none':
+			all_labels, E.result = insert(PC, E.imm, all_lines, all_labels)		
+
 		
 	# or, xor, slt, add, div, mul
 	elif E.ins == 'or':
@@ -223,7 +294,7 @@ def execute(reg_dict, D):
 	else:
 		result = 'U'
 		
-	return E
+	return E, D, F, all_labels
 
 
 
@@ -298,7 +369,7 @@ E_section = [[sg.Text('Execute', key='-ETEXT-', background_color='white', size=s
 M_section = [[sg.Text('Memory', key='-MTEXT-', background_color='white', size=sw, text_color='black')]]
 W_section = [[sg.Text('Write back', key='-WTEXT-', background_color='white', size=sw, text_color='black')]]
 
-layout = [[[sg.Text('Clock control')], [sg.Button('Step'), sg.Button('Step over'), 
+layout = [[[sg.Text('Clock control')], [sg.Button('Mini step'), sg.Button('Step'), 
 		sg.Button('Run'), sg.Button('Restart'), sg.VerticalSeparator(), sg.Column(REG_section, element_justification = 'c'), sg.Column(FLAG_section, element_justification = 'c'),
 		sg.Column(F_section, element_justification = 'c'), sg.Column(D_section, element_justification = 'c'), sg.Column(E_section, element_justification = 'c'),
 		sg.Column(M_section, element_justification = 'c'), sg.Column(W_section, element_justification = 'c')], sg.Text('STEP: 0', key='-STEP-'), sg.Text('', key='-FINISHED-')]]
@@ -316,9 +387,9 @@ def ask_window(R, RS, SO, window, reg_dict):
 		if GUI_event == "Run":
 			R = True
 			break
-		elif GUI_event == "Step":
+		elif GUI_event == "Mini step":
 			break
-		elif GUI_event == "Step over":
+		elif GUI_event == "Step":
 			SO = True
 			break
 		elif GUI_event == sg.WIN_CLOSED:
@@ -349,25 +420,21 @@ def reset_text(window):
 	
 while True:
 	# setup
-	REG_NUM = 8
+	REG_NUM, PC, i = 8, -1, 1
 	reg_dict = dict([("$r%s" % x, 0) for x in range(REG_NUM)]) 
-	PC = -1
-	F = fields()
-	D = fields()
-	E = fields()
-	M = fields()
-	W = fields()
+	F, D, E, M, W = (fields(),)*5
 	user_input = ''
-	i = 1
 	z, v, R, SO, RS = (False,)*5
-	all_lines, all_labels = load_program_into_memory(file_name_input)
+	all_lines, all_labels, memory = load_program_into_memory(file_name_input)
 	if len(all_lines) == 0:
 		exit(0)
 	
 	# RUN
-	while PC < (len(all_lines)-2):
+	while PC < (len(all_lines)-1):
 		
 		lines_left = (len(all_lines)-1) - PC
+		
+		#print('here')
 		if not SO and not R:
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
@@ -379,6 +446,7 @@ while True:
 		
 		#1
 		PC, F = fetch(PC, all_lines, F)
+		
 		if not SO and not R:
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
@@ -386,9 +454,13 @@ while True:
 				RS = False
 				break
 		
+
+
 		#2
 		D = decode(PC, all_lines, all_labels, F)
-		PC, F = fetch(PC, all_lines, F)	
+		if lines_left > 1:
+			PC, F = fetch(PC, all_lines, F)	
+
 		if not SO and not R:
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
@@ -396,10 +468,15 @@ while True:
 				RS = False
 				break
 		
+
+
 		#3
-		E = execute(reg_dict, D)
-		D = decode(PC, all_lines, all_labels, F)
-		PC, F = fetch(PC, all_lines, F)
+		E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels)
+		if lines_left > 1:
+			D = decode(PC, all_lines, all_labels, F)
+		if lines_left > 2:
+			PC, F = fetch(PC, all_lines, F)
+
 		if not SO and not R:
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
@@ -407,11 +484,17 @@ while True:
 				RS = False
 				break
 		
+
+
 		#4
 		target, M = mem(E)
-		E = execute(reg_dict, D)
-		D = decode(PC, all_lines, all_labels, F)
-		PC, F = fetch(PC, all_lines, F)
+		if lines_left > 1:
+			E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels)
+		if lines_left > 2:
+			D = decode(PC, all_lines, all_labels, F)
+		if lines_left > 3:
+			PC, F = fetch(PC, all_lines, F)
+
 		if not SO and not R:
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
@@ -419,11 +502,17 @@ while True:
 				RS = False
 				break
 		
+
+
 		#5
 		PC, z, v, W = write_back(reg_dict, target, PC, M, window)
-		target, M = mem(E)
-		E = execute(reg_dict, D)
-		D = decode(PC, all_lines, all_labels, F)
+		if lines_left > 1:
+			target, M = mem(E)
+		if lines_left > 2:
+			E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels)
+		if lines_left > 3:
+			D = decode(PC, all_lines, all_labels, F)
+
 		if not SO and not R:
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
@@ -431,10 +520,16 @@ while True:
 				RS = False
 				break
 		
+
+
 		#6
-		PC, z, v, W = write_back(reg_dict, target, PC, M, window)
-		target, M = mem(E)
-		E = execute(reg_dict, D)
+		if lines_left > 1:
+			PC, z, v, W = write_back(reg_dict, target, PC, M, window)
+		if lines_left > 2:	
+			target, M = mem(E)
+		if lines_left > 3:	
+			E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels)
+
 		if not SO and not R:
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
@@ -442,9 +537,14 @@ while True:
 				RS = False
 				break
 			
+
+
 		#7
-		PC, z, v, W = write_back(reg_dict, target, PC, M, window)
-		target, M = mem(E)
+		if lines_left > 2:
+			PC, z, v, W = write_back(reg_dict, target, PC, M, window)
+		if lines_left > 3:
+			target, M = mem(E)
+
 		if not SO and not R:
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
@@ -452,8 +552,12 @@ while True:
 				RS = False
 				break
 		
+
+
 		#8
-		PC, z, v, W = write_back(reg_dict, target, PC, M, window)
+		if lines_left > 3:
+			PC, z, v, W = write_back(reg_dict, target, PC, M, window)
+
 		if not SO and not R:
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
@@ -464,24 +568,24 @@ while True:
 		i += 1
 			
 		SO = False
-	
-	if R or SO:
+		
+	if R or SO or (PC >= len(all_lines)-1):
 		update_window(window, reg_dict)
 		window['-FLAGTEXT-'].update('Flags\n' + 'Zero: ' + str(z) + '\nOverflow: ' + str(v))
 		window['-FINISHED-'].update('File finished running.')
+		window.find_element('Mini step').Update(disabled=True)
 		window.find_element('Step').Update(disabled=True)
-		window.find_element('Step over').Update(disabled=True)
 		window.find_element('Run').Update(disabled=True)
 		while True:
 			GUI_event, values = window.read()
 			if GUI_event == sg.WIN_CLOSED:
+				print(all_lines)
 				exit(0)
 			elif GUI_event == "Restart":
 				reset_text(window)
+				window.find_element('Mini step').Update(disabled=False)
 				window.find_element('Step').Update(disabled=False)
-				window.find_element('Step over').Update(disabled=False)
 				window.find_element('Run').Update(disabled=False)
 				break
 			
-	
 exit(0)
