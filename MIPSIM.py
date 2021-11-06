@@ -247,7 +247,7 @@ def insert(PC, imm, all_lines, all_labels):
 	
 	return all_labels, imm
 
-def execute(reg_dict, E, D, F, PC, all_labels):
+def execute(reg_dict, E, D, F, PC, all_labels, all_lines):
 	E = copy.deepcopy(D)
 	#print(E.ins)
 	if E.ins == 'NOP':
@@ -483,7 +483,7 @@ def main():
 	
 	
 			#3
-			E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels)
+			E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels, all_lines)
 			if lines_left > 1:
 				D = decode(PC, all_lines, all_labels, F)
 			if lines_left > 2:
@@ -501,7 +501,7 @@ def main():
 			#4
 			target, M = mem(E)
 			if lines_left > 1:
-				E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels)
+				E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels, all_lines)
 			if lines_left > 2:
 				D = decode(PC, all_lines, all_labels, F)
 			if lines_left > 3:
@@ -521,7 +521,7 @@ def main():
 			if lines_left > 1:
 				target, M = mem(E)
 			if lines_left > 2:
-				E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels)
+				E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels, all_lines)
 			if lines_left > 3:
 				D = decode(PC, all_lines, all_labels, F)
 	
@@ -540,7 +540,7 @@ def main():
 			if lines_left > 2:	
 				target, M = mem(E)
 			if lines_left > 3:	
-				E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels)
+				E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels, all_lines)
 	
 			if not SO and not R and not (PC >= len(all_lines)-1):
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
