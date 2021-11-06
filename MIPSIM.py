@@ -324,15 +324,18 @@ def check_z(result):
 
 
 def write_back(reg_dict, target, PC, M, window):
-	# note to pj: test flags
 	W = copy.deepcopy(M)
+	
+	
 	if M.ins == 'NOP':
 		z = False
 		v = False
 		result = 'X'
 		return PC, z, v, W
+		
+		
 	result = M.result
-	z = v = False
+	z, v = False, False
 	if result == 'none':
 		pass
 	elif target == 'PC':
