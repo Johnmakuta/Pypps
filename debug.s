@@ -1,1 +1,1 @@
-li $r0, -32769 ;r0
+li $r0, 320771 ;r0 ahahahahha
