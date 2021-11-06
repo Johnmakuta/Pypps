@@ -40,7 +40,7 @@ def load_program_into_memory(file_name):
 					dummy_line = copy.deepcopy(line[i+1])
 					if len(dummy_line) > 1:
 						dummy_line.pop(1)
-					if any(word in line[i][j] for word in line[i+1]) and not line[i][0] == 'j':
+					if any(word in line[i][j] for word in line[i+1]) and not line[i][0] == 'j' and not line[i][0] == 'beq' and not line[i][0] == 'ble' and not line[i][0] == 'bie':
 						H = True
 
 				if H:
@@ -61,6 +61,7 @@ def load_program_into_memory(file_name):
 		all_lines.append(line[i])
 		
 	#print(memory)
+	# debug
 	print(all_lines)
 	#exit(0)
 	return all_lines, all_labels, memory

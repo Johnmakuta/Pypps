@@ -21,7 +21,6 @@ if not path.exists(file_name_input):
 
 def main():
 	# GUI
-	#sg.theme('DarkTanBlue')
 	s = (20, 10)
 	st = (18,10)
 	sw = (40, 4)
@@ -97,7 +96,7 @@ def main():
 		while PC < (len(all_lines)-1):
 			
 			lines_left = (len(all_lines)-1) - PC
-			
+			# debug
 			#print('here')
 			if not SO and not R:
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
@@ -242,6 +241,7 @@ def main():
 			while True:
 				GUI_event, values = window.read()
 				if GUI_event == sg.WIN_CLOSED:
+					# debug
 					print(all_lines)
 					exit(0)
 				elif GUI_event == "Restart":
