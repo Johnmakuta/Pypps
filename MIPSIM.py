@@ -3,6 +3,13 @@ import sys
 from os import path
 import copy
 import PySimpleGUI as sg
+import FETCH
+import DECODE
+import EXECUTE
+import MEM
+import WB
+import FIELDS
+import LOAD
 
 if len(sys.argv) < 2:
 	print('Error. Usage: python3 MIPSIM.py filename\nExiting.')
@@ -11,364 +18,6 @@ file_name_input = str(sys.argv[1])
 if not path.exists(file_name_input):
 	print('Error. File not found.\nExiting.')
 	exit(0)
-
-class fields:
-	def __init__(self):
-		self.ins = 'U'
-		self.op = 'U'
-		self.func = 'U'
-		self.rd = 'U'
-		self.rs = 'U'
-		self.rt = 'U'
-		self.imm = 'U'
-		self.result = 'U'
-	def print_fields_string(self):
-		if self.ins == 'U':
-			return ''
-		if self.ins == 'NOP':
-			return '[no operation]'
-			
-		imm_bin = self.imm
-		if (self.imm != 'U') and (self.imm != 'xxxxxxxxx'):
-			try:
-				temp = float(self.imm)
-				imm_bin = format(temp, '09b')
-			except ValueError:
-				temp = int(self.imm)
-				imm_bin = format(temp, '09b')
-				
-		return 'instruction: ' + str(self.ins) + '\n' + str(self.op) + ' ' + str(self.func) + ' ' + str(self.rd) + ' ' + str(self.rs) + ' ' + str(self.rt) + ' ' + str(imm_bin)
-
-def print_RF_string(RF):
-	string = ''
-	for reg, value in RF.items():
-		string += "{} {}".format(reg, value) + '\n'
-	return string
-
-
-def load_program_into_memory(file_name):
-	all_lines, line, dummy_line = [], [], []
-	all_labels, memory = {}, {}
-	H, data_mode = False, False
-	target = '#'
-	with open(file_name) as test_file:
-		for file_line in test_file:
-			if file_line.startswith('#') or file_line.startswith(';') or file_line == '\n' or file_line == '':
-				pass
-			else:
-				file_line = file_line.replace(',', '')
-				file_line = file_line.split(';', 1)[0]
-				file_line = file_line.split()
-				line.append(file_line)
-			
-
-
-
-	for i in range(len(line)):
-		if any('.data' in word for word in line[i]):
-			data_mode = True
-			continue
-		elif any('.text' in word for word in line[i]):
-			data_mode = False
-			continue
-
-		elif any(':' in word for word in line[i]) and not data_mode:
-			all_labels[line[i][0].replace(':', '')] = (len(all_lines))
-		elif data_mode:
-			#print(line[i])
-			#print(int(int(line[i][2]))/2)
-			size = round(int(int(line[i][2]))/2)
-			memory[line[i][0]] = list(0  for n in range(size))
-
-		elif not data_mode:
-			if not i+1 > len(line)-1:
-				for j in range(1, len(line[i])):
-					dummy_line = copy.deepcopy(line[i+1])
-					if len(dummy_line) > 1:
-						dummy_line.pop(1)
-					if any(word in line[i][j] for word in line[i+1]) and not line[i][0] == 'j':
-						H = True
-
-				if H:
-					all_lines.append(line[i])
-					all_lines.append(['NOP'])
-					all_lines.append(['NOP'])
-					all_lines.append(['NOP'])
-					H = False
-				else:
-					all_lines.append(line[i])
-
-	if not len(line):
-		print('File is empty.')
-		exit(0)
-
-
-	if not any(':' in word for word in line[i]) and not data_mode:
-		all_lines.append(line[i])
-		
-	#print(memory)
-	print(all_lines)
-	#exit(0)
-	return all_lines, all_labels, memory
-
-def fetch(PC, all_lines, F):
-	PC += 1
-	F.ins = all_lines[PC][0]
-	if F.ins == 'NOP':
-		F.rd = F.rt = F.rs = 'xxxx'
-		return PC, F
-	if (F.ins == 'addi') or (F.ins == 'subi') or (F.ins == 'li') or (F.ins == 'sll'):
-		F.rd = all_lines[PC][1]
-		F.rt = F.rs = 'xxxx'
-	elif (F.ins == 'lw') or (F.ins == 'sw') or (F.ins == 'beq') or (F.ins == 'ble'):
-		F.rd = all_lines[PC][1]
-		F.rs = all_lines[PC][2]
-		F.rt = 'xxxx'
-	elif (F.ins == 'or') or (F.ins == 'xor') or (F.ins == 'slt') or (F.ins == 'add') or (F.ins == 'div') or (F.ins == 'mul'):
-		F.rd = all_lines[PC][1]
-		F.rs = all_lines[PC][2]
-		F.rt = all_lines[PC][3]
-	elif F.ins == 'j':
-		F.rs = F.rt = F.rd = 'xxxx'	
-	
-	return PC, F
-
-
-
-
-def decode(PC, all_lines, all_labels, F):
-
-	D = copy.deepcopy(F)
-	D.ins = all_lines[PC][0]
-	if D.ins == 'NOP':
-		D.op, D.func, D.imm = 'xxx', 'xxxx', 'xxxxxxxxx'
-		return D
-		
-	# li, addi, subi, sll
-	if D.ins == 'li':
-		D.op = '1100'
-		D.func = '000'
-		D.imm = all_lines[PC][2]
-	elif D.ins == 'addi':
-		D.op = '1000'
-		D.func = '000'
-		D.imm = all_lines[PC][2]
-	elif D.ins == 'subi':
-		D.op = '1001'
-		D.func = '000'
-		D.imm = all_lines[PC][2]
-	elif D.ins == 'sll':
-		D.op = '1111'
-		D.func = '000'
-		D.imm = all_lines[PC][2]
-	
-	# lw, sw, beq, ble
-	elif D.ins == 'lw':
-		D.op = '1000'
-		D.func = '000'
-		D.imm = 'xxxxxxxxx'
-	elif D.ins == 'sw':
-		D.op = '1000'
-		D.func = '000'
-		D.imm = 'xxxxxxxxx'
-	elif D.ins == 'beq':
-		D.op = '0010'
-		D.func = '000'
-		D.imm = all_labels[all_lines[PC][3]]
-	elif D.ins == 'ble':
-		D.op = '0101'
-		D.func = '000'
-		D.imm = all_labels[all_lines[PC][3]]
-	
-	# or, xor, slt, add, div, mul
-	elif D.ins == 'or':
-		D.op = '0000'
-		D.func = '001'
-		D.imm = 'xxxxxxxxx'
-	elif D.ins == 'xor':
-		D.op = '0000'
-		D.func = '010'
-		D.imm = 'xxxxxxxxx'
-	elif D.ins == 'slt':
-		D.op = '0000'
-		D.func = '011'
-		D.imm = 'xxxxxxxxx'
-	elif D.ins == 'add':
-		D.op = '0000'
-		D.func = '000'
-		D.imm = 'xxxxxxxxx'
-	elif D.ins == 'div':
-		D.op = '0000'
-		D.func = '100'
-		D.imm = 'xxxxxxxxx'
-	elif D.ins == 'mul':
-		D.op = '0000'
-		D.func = '101'
-		D.imm = 'xxxxxxxxx'
-	
-	# j
-	elif D.ins == 'j':
-		D.op = '0001'
-		D.func = '000'
-		D.imm = all_labels[all_lines[PC][1]]
-		
-	else:
-		D.op = 'U'
-		D.func = 'U'
-	
-	return D
-
-
-def add_1_to(dict):
-    for entry in dict.items():
-       dict[entry[0]] = entry[1] + 1
-    return dict
-
-def add_2_to(dict):
-    for entry in dict.items():
-       dict[entry[0]] = entry[1] + 2
-    return dict
-
-def insert(PC, imm, all_lines, all_labels):
-	if PC != imm:
-			print('PC != imm', PC, imm)
-			all_lines[PC][0] = 'NOP'
-			if (PC+1) != imm:
-				print('PC+1 != imm', PC+1, imm)
-				all_lines[PC+1][0] = 'NOP'
-			else:
-				all_lines.insert((PC), ['NOP'])
-				all_labels = add_1_to(all_labels)
-				imm += 1
-				
-	else:
-		all_lines.insert((PC), ['NOP'])
-		all_lines.insert((PC), ['NOP'])	
-		all_labels = add_2_to(all_labels)
-		imm += 2
-	
-	return all_labels, imm
-
-def execute(reg_dict, E, D, F, PC, all_labels, all_lines):
-	E = copy.deepcopy(D)
-	#print(E.ins)
-	if E.ins == 'NOP':
-		#print('here', E.ins)
-		E.result = 'X'
-		return E, D, F, all_labels
-	# li, j, addi, subi, sll
-	if E.ins == 'li':
-		E.result = E.imm
-	elif E.ins == 'j':
-		E.result = E.imm
-		all_labels, E.result = insert(PC, E.imm, all_lines, all_labels)	
-			
-		
-		
-
-	elif E.ins == 'addi':
-		E.result = int(reg_dict[E.rd]) + int(E.imm)
-	elif E.ins == 'subi':
-		E.result = int(reg_dict[E.rd]) - int(E.imm)
-	elif E.ins == 'sll':
-		E.result = int(reg_dict[E.rd]) << int(E.imm)
-	
-	# lw, sw, beq	
-	elif E.ins == 'lw':
-		E.result = int(reg_dict[E.rs])
-	elif E.ins == 'sw':
-		E.result = int(reg_dict[E.rd])
-	elif E.ins == 'beq':
-		E.result = E.imm if int(reg_dict[E.rd]) == int(reg_dict[E.rs]) else 'none'
-		if E.result != 'none':
-			all_labels, E.result = insert(PC, E.imm, all_lines, all_labels)	
-
-	elif E.ins == 'ble':
-		E.result = E.imm if int(reg_dict[E.rd]) <= int(reg_dict[E.rs]) else 'none'
-		if E.result != 'none':
-			all_labels, E.result = insert(PC, E.imm, all_lines, all_labels)		
-
-		
-	# or, xor, slt, add, div, mul
-	elif E.ins == 'or':
-		E.result = int(reg_dict[E.rs]) or int(reg_dict[E.rt])
-	elif E.ins == 'xor':
-		E.result = int(reg_dict[E.rs]) ^ int(reg_dict[E.rt])
-	elif E.ins == 'slt':
-		E.result = 1 if int(reg_dict[E.rs]) < int(reg_dict[E.rt]) else 0
-	elif E.ins == 'add':
-		E.result = int(reg_dict[E.rs]) + int(reg_dict[E.rt])
-	elif E.ins == 'mul':
-		E.result = int(reg_dict[E.rs]) * int(reg_dict[E.rt])
-	elif E.ins == 'div':
-		E.result = int(reg_dict[E.rs]) / int(reg_dict[E.rt])
-	
-	else:
-		result = 'U'
-		
-	return E, D, F, all_labels
-
-
-
-
-def mem(E):
-
-	M = copy.deepcopy(E)
-	if M.ins == 'NOP':
-		target = 'X'
-		return target, M 
-	if (M.ins == 'li') or (M.ins == 'addi') or (M.ins == 'lw') or (M.ins == 'subi') or (M.ins == 'sll'):
-		target = M.rd
-	elif M.ins == 'sw':
-		target = M.rs
-	elif (M.ins == 'add') or (M.ins == 'or') or (M.ins == 'xor') or (M.ins == 'slt') or (M.ins == 'div') or (M.ins == 'mul'):
-		target = M.rd
-	elif (M.ins == 'j') or (M.ins == 'beq') or (M.ins == 'ble'):
-		target = 'PC'
-	else:
-		target = 'U'
-	
-	return target, M
-
-
-def check_z(result):
-	return True if int(result) == 0 else False
-
-
-def write_back(reg_dict, target, PC, M, window):
-	W = copy.deepcopy(M)
-	
-	
-	if M.ins == 'NOP':
-		z = False
-		v = False
-		result = 'X'
-		return PC, z, v, W
-		
-		
-	result = M.result
-	z, v = False, False
-	if result == 'none':
-		pass
-	elif target == 'PC':
-		PC = result-1
-	else:
-		if int(result) > 32767: 
-			result = int(result) - (round(int(result)/32768)) * 32768
-			z = check_z(result)
-			v = True
-		elif int(result) < -32768:
-			result = int(result) + (round(int(result)/-32769)) * 32769
-			z = check_z(result)
-			v = True
-		else:
-			z = check_z(result)
-			v = False
-		reg_dict[target] = result
-  
-	window['-FLAGTEXT-'].update('Flags\n' + 'Zero: ' + str(z) + '\nOverflow: ' + str(v))
-	
-	return PC, z, v, W
 
 def main():
 	# GUI
@@ -415,7 +64,7 @@ def main():
 		return R, RS, SO, GUI_event
 		
 	def update_window(window, reg_dict):
-		window['-REGTEXT-'].update('Registers\n' + print_RF_string(reg_dict))
+		window['-REGTEXT-'].update('Registers\n' + FIELDS.print_RF_string(reg_dict))
 		window['-FTEXT-'].update('Fetch\n' + F.print_fields_string())
 		window['-DTEXT-'].update('Decode\n' + D.print_fields_string())
 		window['-ETEXT-'].update('Execute\n' + E.print_fields_string())
@@ -437,10 +86,10 @@ def main():
 		# setup
 		REG_NUM, PC, i = 8, -1, 1
 		reg_dict = dict([("$r%s" % x, 0) for x in range(REG_NUM)]) 
-		F, D, E, M, W=fields(), fields(), fields(), fields(), fields()
+		F, D, E, M, W=FIELDS.fields(), FIELDS.fields(), FIELDS.fields(), FIELDS.fields(), FIELDS.fields()
 		user_input = ''
 		z, v, R, SO, RS = (False,)*5
-		all_lines, all_labels, memory = load_program_into_memory(file_name_input)
+		all_lines, all_labels, memory = LOAD.load_program_into_memory(file_name_input)
 		if len(all_lines) == 0:
 			exit(0)
 		
@@ -460,7 +109,7 @@ def main():
 			window['-STEP-'].update('STEP: ' + str(i) + ', PC: ' + str(PC+1))
 			
 			#1
-			PC, F = fetch(PC, all_lines, F)
+			PC, F = FETCH.fetch(PC, all_lines, F)
 	
 			if not SO and not R:
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
@@ -471,9 +120,9 @@ def main():
 			
 			
 			#2
-			D = decode(PC, all_lines, all_labels, F)
+			D = DECODE.decode(PC, all_lines, all_labels, F)
 			if lines_left > 1:
-				PC, F = fetch(PC, all_lines, F)	
+				PC, F = FETCH.fetch(PC, all_lines, F)	
 	
 			if not SO and not R:
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
@@ -485,11 +134,11 @@ def main():
 	
 	
 			#3
-			E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels, all_lines)
+			E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines)
 			if lines_left > 1:
-				D = decode(PC, all_lines, all_labels, F)
+				D = DECODE.decode(PC, all_lines, all_labels, F)
 			if lines_left > 2:
-				PC, F = fetch(PC, all_lines, F)
+				PC, F = FETCH.fetch(PC, all_lines, F)
 	
 			if not SO and not R:
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
@@ -501,13 +150,13 @@ def main():
 	
 	
 			#4
-			target, M = mem(E)
+			target, M = MEM.mem(E)
 			if lines_left > 1:
-				E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels, all_lines)
+				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines)
 			if lines_left > 2:
-				D = decode(PC, all_lines, all_labels, F)
+				D = DECODE.decode(PC, all_lines, all_labels, F)
 			if lines_left > 3:
-				PC, F = fetch(PC, all_lines, F)
+				PC, F = FETCH.fetch(PC, all_lines, F)
 	
 			if not SO and not R:
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
@@ -519,13 +168,13 @@ def main():
 	
 	
 			#5
-			PC, z, v, W = write_back(reg_dict, target, PC, M, window)
+			PC, z, v, W = WB.write_back(reg_dict, target, PC, M, window)
 			if lines_left > 1:
-				target, M = mem(E)
+				target, M = MEM.mem(E)
 			if lines_left > 2:
-				E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels, all_lines)
+				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines)
 			if lines_left > 3:
-				D = decode(PC, all_lines, all_labels, F)
+				D = DECODE.decode(PC, all_lines, all_labels, F)
 	
 			if not SO and not R:
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
@@ -538,11 +187,11 @@ def main():
 	
 			#6
 			if lines_left > 1:
-				PC, z, v, W = write_back(reg_dict, target, PC, M, window)
+				PC, z, v, W = WB.write_back(reg_dict, target, PC, M, window)
 			if lines_left > 2:	
-				target, M = mem(E)
+				target, M = MEM.mem(E)
 			if lines_left > 3:	
-				E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels, all_lines)
+				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines)
 	
 			if not SO and not R and not (PC >= len(all_lines)-1):
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
@@ -555,9 +204,9 @@ def main():
 	
 			#7
 			if lines_left > 2:
-				PC, z, v, W = write_back(reg_dict, target, PC, M, window)
+				PC, z, v, W = WB.write_back(reg_dict, target, PC, M, window)
 			if lines_left > 3:
-				target, M = mem(E)
+				target, M = MEM.mem(E)
 	
 			if not SO and not R and not (PC >= len(all_lines)-1):
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
@@ -570,7 +219,7 @@ def main():
 	
 			#8
 			if lines_left > 3:
-				PC, z, v, W = write_back(reg_dict, target, PC, M, window)
+				PC, z, v, W = WB.write_back(reg_dict, target, PC, M, window)
 	
 			if not SO and not R and not (PC >= len(all_lines)-1):
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
