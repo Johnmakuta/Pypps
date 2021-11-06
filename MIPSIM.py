@@ -42,7 +42,7 @@ def load_program_into_memory(file_name):
 	H, data_mode = False, False
 	with open(file_name) as test_file:
 		for file_line in test_file:
-			if file_line.startswith('#') or file_line == '\n' or file_line == '':
+			if file_line.startswith('#') or file_line.startswith(';') or file_line == '\n' or file_line == '':
 				pass
 			else:
 				file_line = file_line.replace(',', '')
@@ -86,11 +86,14 @@ def load_program_into_memory(file_name):
 				else:
 					all_lines.append(line[i])
 
-
+	if not len(line):
+		print('File is empty.')
+		exit(0)
 
 
 	if not any(':' in word for word in line[i]) and not data_mode:
 		all_lines.append(line[i])
+		
 	#print(memory)
 	print(all_lines)
 	#exit(0)
@@ -236,7 +239,7 @@ def insert(PC, imm, all_lines, all_labels):
 
 def execute(reg_dict, E, D, F, PC, all_labels):
 	E = copy.deepcopy(D)
-	print(E.ins)
+	#print(E.ins)
 	if E.ins == 'NOP':
 		#print('here', E.ins)
 		E.result = 'X'
@@ -316,6 +319,8 @@ def mem(E):
 	return target, M
 
 
+def check_z(result):
+	return True if int(result) == 0 else False
 
 
 def write_back(reg_dict, target, PC, M, window):
@@ -333,19 +338,16 @@ def write_back(reg_dict, target, PC, M, window):
 	elif target == 'PC':
 		PC = result-1
 	else:
-		if int(result) == 0:
-			z = True
-			v = False
-		elif int(result) > 32767:
-			z = False
-			v = True 
-			result = result - (round(result/32767)+1) * 32767
-		elif int(result) < -32768:
-			z = False
+		if int(result) > 32767: 
+			result = int(result) - (round(int(result)/32768)) * 32768
+			z = check_z(result)
 			v = True
-			result = result + (round(result/32768)+1) * 32768
+		elif int(result) < -32768:
+			result = int(result) + (round(int(result)/-32769)) * 32769
+			z = check_z(result)
+			v = True
 		else:
-			z = False
+			z = check_z(result)
 			v = False
 		reg_dict[target] = result
   
