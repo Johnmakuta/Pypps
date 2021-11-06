@@ -26,8 +26,18 @@ class fields:
 		if self.ins == 'U':
 			return ''
 		if self.ins == 'NOP':
-			return '(NO OPERATION)'
-		return 'instruction: ' + str(self.ins) + '\n' + str(self.op) + ' ' + str(self.func) + ' ' + str(self.rd) + ' ' + str(self.rs) + ' ' + str(self.rt) + ' ' + str(self.imm)
+			return '[no operation]'
+			
+		imm_bin = self.imm
+		if (self.imm != 'U') and (self.imm != 'xxxxxxxxx'):
+			try:
+				temp = float(self.imm)
+				imm_bin = format(temp, '09b')
+			except ValueError:
+				temp = int(self.imm)
+				imm_bin = format(temp, '09b')
+				
+		return 'instruction: ' + str(self.ins) + '\n' + str(self.op) + ' ' + str(self.func) + ' ' + str(self.rd) + ' ' + str(self.rs) + ' ' + str(self.rt) + ' ' + str(imm_bin)
 
 def print_RF_string(RF):
 	string = ''
@@ -103,21 +113,21 @@ def fetch(PC, all_lines, F):
 	PC += 1
 	F.ins = all_lines[PC][0]
 	if F.ins == 'NOP':
-		F.rd = F.rt = F.rs = 'X'
+		F.rd = F.rt = F.rs = 'xxxx'
 		return PC, F
 	if (F.ins == 'addi') or (F.ins == 'subi') or (F.ins == 'li') or (F.ins == 'sll'):
 		F.rd = all_lines[PC][1]
-		F.rt = F.rs = 'X'
+		F.rt = F.rs = 'xxxx'
 	elif (F.ins == 'lw') or (F.ins == 'sw') or (F.ins == 'beq') or (F.ins == 'ble'):
 		F.rd = all_lines[PC][1]
 		F.rs = all_lines[PC][2]
-		F.rt = 'X'
+		F.rt = 'xxxx'
 	elif (F.ins == 'or') or (F.ins == 'xor') or (F.ins == 'slt') or (F.ins == 'add') or (F.ins == 'div') or (F.ins == 'mul'):
 		F.rd = all_lines[PC][1]
 		F.rs = all_lines[PC][2]
 		F.rt = all_lines[PC][3]
 	elif F.ins == 'j':
-		F.rs = F.rt = F.rd = 'X'	
+		F.rs = F.rt = F.rd = 'xxxx'	
 	
 	return PC, F
 
@@ -129,7 +139,7 @@ def decode(PC, all_lines, all_labels, F):
 	D = copy.deepcopy(F)
 	D.ins = all_lines[PC][0]
 	if D.ins == 'NOP':
-		D.op = D.func = D.imm = 'X'
+		D.op, D.func, D.imm = 'xxx', 'xxxx', 'xxxxxxxxx'
 		return D
 		
 	# li, addi, subi, sll
@@ -154,11 +164,11 @@ def decode(PC, all_lines, all_labels, F):
 	elif D.ins == 'lw':
 		D.op = '1000'
 		D.func = '000'
-		D.imm = 'X'
+		D.imm = 'xxxxxxxxx'
 	elif D.ins == 'sw':
 		D.op = '1000'
 		D.func = '000'
-		D.imm = 'X'
+		D.imm = 'xxxxxxxxx'
 	elif D.ins == 'beq':
 		D.op = '0010'
 		D.func = '000'
@@ -172,27 +182,27 @@ def decode(PC, all_lines, all_labels, F):
 	elif D.ins == 'or':
 		D.op = '0000'
 		D.func = '001'
-		D.imm = 'X'
+		D.imm = 'xxxxxxxxx'
 	elif D.ins == 'xor':
 		D.op = '0000'
 		D.func = '010'
-		D.imm = 'X'
+		D.imm = 'xxxxxxxxx'
 	elif D.ins == 'slt':
 		D.op = '0000'
 		D.func = '011'
-		D.imm = 'X'
+		D.imm = 'xxxxxxxxx'
 	elif D.ins == 'add':
 		D.op = '0000'
 		D.func = '000'
-		D.imm = 'X'
+		D.imm = 'xxxxxxxxx'
 	elif D.ins == 'div':
 		D.op = '0000'
 		D.func = '100'
-		D.imm = 'X'
+		D.imm = 'xxxxxxxxx'
 	elif D.ins == 'mul':
 		D.op = '0000'
 		D.func = '101'
-		D.imm = 'X'
+		D.imm = 'xxxxxxxxx'
 	
 	# j
 	elif D.ins == 'j':
@@ -362,7 +372,7 @@ def write_back(reg_dict, target, PC, M, window):
 #sg.theme('DarkTanBlue')
 s = (20, 10)
 st = (18,10)
-sw = (24, 4)
+sw = (40, 4)
 REG_section = [[sg.Text('Registers', key='-REGTEXT-', background_color='white', size=s, text_color='black')]]
 FLAG_section = [[sg.Text('Flags\nZero: Unknown\nOverflow: Unknown', key='-FLAGTEXT-', background_color='white', size=st, text_color='black')]]
 F_section = [[sg.Text('Fetch', key='-FTEXT-', background_color='white', size=sw, text_color='black')]]
@@ -372,11 +382,11 @@ M_section = [[sg.Text('Memory', key='-MTEXT-', background_color='white', size=sw
 W_section = [[sg.Text('Write back', key='-WTEXT-', background_color='white', size=sw, text_color='black')]]
 
 layout = [[[sg.Text('Clock control')], [sg.Button('Mini step'), sg.Button('Step'), 
-		sg.Button('Run'), sg.Button('Restart'), sg.VerticalSeparator(), sg.Column(REG_section, element_justification = 'c'), sg.Column(FLAG_section, element_justification = 'c'),
-		sg.Column(F_section, element_justification = 'c'), sg.Column(D_section, element_justification = 'c'), sg.Column(E_section, element_justification = 'c'),
-		sg.Column(M_section, element_justification = 'c'), sg.Column(W_section, element_justification = 'c')], sg.Text('STEP: 0', key='-STEP-'), sg.Text('', key='-FINISHED-')]]
+		sg.Button('Run'), sg.Button('Restart'), sg.VerticalSeparator(), sg.Column(REG_section, element_justification = 'c'), sg.Column(FLAG_section, element_justification = 'c')],
+		[sg.Column(F_section, element_justification = 'c')], [sg.Column(D_section, element_justification = 'c')], [sg.Column(E_section, element_justification = 'c')],
+		[sg.Column(M_section, element_justification = 'c')], [sg.Column(W_section, element_justification = 'c')], sg.Text('STEP: 0, PC: 0', key='-STEP-'), sg.Text('', key='-FINISHED-')]]
 
-window = sg.Window('MIPSIM', layout, size=(1600, 300), location=(300,330))
+window = sg.Window('MIPSIM', layout, size=(900, 700), location=(2300,330))
 
 def ask_window(R, RS, SO, window, reg_dict):
 	while True:
@@ -411,7 +421,7 @@ def update_window(window, reg_dict):
 
 def reset_text(window):
 	window['-REGTEXT-'].update('Registers\n')
-	window['-STEP-'].update('STEP: 0')
+	window['-STEP-'].update('STEP: 0, PC: 0')
 	window['-FINISHED-'].update('')
 	window['-FLAGTEXT-'].update('Flags\nZero: Unknown\nOverflow: Unknown')
 	window['-FTEXT-'].update('Fetch\n')
@@ -424,7 +434,7 @@ while True:
 	# setup
 	REG_NUM, PC, i = 8, -1, 1
 	reg_dict = dict([("$r%s" % x, 0) for x in range(REG_NUM)]) 
-	F, D, E, M, W = (fields(),)*5
+	F, D, E, M, W=fields(), fields(), fields(), fields(), fields()
 	user_input = ''
 	z, v, R, SO, RS = (False,)*5
 	all_lines, all_labels, memory = load_program_into_memory(file_name_input)
@@ -444,7 +454,7 @@ while True:
 				RS = False
 				break
 		
-		window['-STEP-'].update('STEP: ' + str(i))
+		window['-STEP-'].update('STEP: ' + str(i) + ', PC: ' + str(PC+1))
 		
 		#1
 		PC, F = fetch(PC, all_lines, F)
@@ -456,8 +466,6 @@ while True:
 				RS = False
 				break
 		
-
-
 		#2
 		D = decode(PC, all_lines, all_labels, F)
 		if lines_left > 1:
@@ -532,7 +540,7 @@ while True:
 		if lines_left > 3:	
 			E, D, F, all_labels = execute(reg_dict, E, D, F, PC, all_labels)
 
-		if not SO and not R:
+		if not SO and not R and not (PC >= len(all_lines)-1):
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
 				reset_text(window)
@@ -547,7 +555,7 @@ while True:
 		if lines_left > 3:
 			target, M = mem(E)
 
-		if not SO and not R:
+		if not SO and not R and not (PC >= len(all_lines)-1):
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
 				reset_text(window)
@@ -560,7 +568,7 @@ while True:
 		if lines_left > 3:
 			PC, z, v, W = write_back(reg_dict, target, PC, M, window)
 
-		if not SO and not R:
+		if not SO and not R and not (PC >= len(all_lines)-1):
 			R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 			if RS:
 				reset_text(window)

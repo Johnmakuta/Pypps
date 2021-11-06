@@ -1,13 +1,45 @@
+#!/usr/bin/env python
+import sys
 import PySimpleGUI as sg
+from tkinter import font
+import tkinter
+root = tkinter.Tk()
+fonts = list(font.families())
+fonts.sort()
+root.destroy()
 
-s = (20, 10)
-REG_section = [[sg.Text('Registers', key='-REGTEXT-', background_color='white', size=s, text_color='black')]]
-FLAG_section = [[sg.Text('Flags', key='-FLAGTEXT-', background_color='white', size=s, text_color='black')]]
+'''
+    Showing fonts in PSG / tk
+'''
 
-layout = [[[sg.Text('Clock control')], sg.Button('Step'), 
-		sg.Button('Run'), sg.VerticalSeparator(), sg.Column(REG_section, element_justification = 'c'), sg.Column(FLAG_section, element_justification = 'c')]]
+sg.theme('Black')
 
-window = sg.Window('MIPSIM', layout, size=(400, 400), location=(600,330))
-event, values = window.read()
+layout = [[sg.Text('My Text Element',
+                size=(20, 1),
+                click_submits=True,
+                relief=sg.RELIEF_GROOVE,
+                font='Courier` 25',
+                text_color='#FF0000',
+                background_color='white',
+                justification='center',
+                pad=(5, 3),
+                key='-text-',
+                tooltip='This is a text element',
+                )],
+          [sg.Listbox(fonts, size=(30, 20), change_submits=True, key='-list-')],
+          [sg.Input(key='-in-')],
+          [sg.Button('Read', bind_return_key=True), sg.Exit()]]
 
+window = sg.Window('My new window', layout)
+
+while True:     # Event Loop
+    event, values = window.read()
+    if event in (sg.WIN_CLOSED, 'Exit'):
+        break
+    text_elem = window['-text-']
+    print(event, values)
+    if values['-in-'] != '':
+        text_elem.update(font=values['-in-'])
+    else:
+        text_elem.update(font=(values['-list-'][0], 25))
 window.close()
