@@ -310,7 +310,8 @@ while PC < (len(all_lines)-1):
 		user_input = input('\n      Enter R to run program to completion. Enter any other key to step. >')
 		if user_input.lower() == 'r':
 			R = True
-		
+	#all_print_fields(F,D,E,M)
+	print_RF(reg_dict)
 	PC, F, D = fetch(PC, all_lines, F)
 	
 	D, E = decode(PC, all_lines, all_labels, D)
