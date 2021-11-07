@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 MIPSIM.py demo.s
+python3 MIPSIM.py array_demo.s

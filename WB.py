@@ -4,7 +4,7 @@ def check_z(result):
 	return True if int(result) == 0 else False
 
 
-def write_back(reg_dict, target, PC, M, window):
+def write_back(reg_dict, memory, target, PC, M, window):
 	W = copy.deepcopy(M)
 	
 	
@@ -38,7 +38,16 @@ def write_back(reg_dict, target, PC, M, window):
 		else:
 			z = check_z(result)
 			v = False
-		reg_dict[target] = result
+
+		if '(' in target:
+			#print(target)
+			mem_space = (target).split('(')
+			mem_space[1] = mem_space[1][:3]
+			mem_space[1] = int(int(reg_dict[mem_space[1]]) / 2)
+			#print()
+			memory[mem_space[0]][mem_space[1]] = result
+		else:		
+			reg_dict[target] = result
   
 	window['-FLAGTEXT-'].update('Flags\n' + 'Zero: ' + str(z) + '\nOverflow: ' + str(v))
 	
