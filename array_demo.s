@@ -13,47 +13,32 @@
 
     sw $r1, array($r0)
     addi $r0, 2
-    addi $r0, 0
     sw $r2, array($r0)
     addi $r0, 2
-    addi $r0, 0
     sw $r3, array($r0)
     addi $r0, 2
-    addi $r0, 0
     sw $r4, array($r0)
     addi $r0, 2
-    addi $r0, 0
     sw $r5, array($r0)
     addi $r0, 2
-    addi $r0, 0
     sw $r6, array($r0)
     addi $r0, 2
-    addi $r0, 0
     sw $r7, array($r0)
     addi $r0, 2
-    addi $r0, 0
 
     li $r0, 0
-    addi $r0, 0
 
     lw $r7, array($r0)
     addi $r0, 2
-    addi $r0, 0
     lw $r6, array($r0)
     addi $r0, 2
-    addi $r0, 0
     lw $r5, array($r0)
     addi $r0, 2
-    addi $r0, 0
     lw $r4, array($r0)
     addi $r0, 2
-    addi $r0, 0
     lw $r3, array($r0)
     addi $r0, 2
-    addi $r0, 0
     lw $r2, array($r0)
     addi $r0, 2
-    addi $r0, 0
     lw $r1, array($r0)
     addi $r0, 2
-    addi $r0, 0
