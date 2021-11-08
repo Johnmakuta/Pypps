@@ -20,15 +20,18 @@ def flusher(PC, imm, all_lines, all_labels):
 				#print('PC+1 != imm', PC+1, imm)
 				all_lines[PC+1][0] = 'NOP'
 			else:
-				all_lines.insert((PC), ['NOP'])
-				all_labels = add_1_to(all_labels)
-				imm += 1
+				if imm > PC:
+					all_lines.insert((PC), ['NOP'])
+					all_labels = add_1_to(all_labels)
+					imm += 1
 				
 	else:
-		all_lines.insert((PC), ['NOP'])
-		all_lines.insert((PC), ['NOP'])	
-		all_labels = add_2_to(all_labels)
-		imm += 2
+		if imm > PC:
+			all_lines.insert((PC), ['NOP'])
+			all_lines.insert((PC), ['NOP'])	
+			all_labels = add_2_to(all_labels)
+			imm += 2
+
 	
 	return all_labels, imm
 	
