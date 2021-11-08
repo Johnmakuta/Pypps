@@ -88,7 +88,8 @@ def main():
 		F, D, E, M, W=FIELDS.fields(), FIELDS.fields(), FIELDS.fields(), FIELDS.fields(), FIELDS.fields()
 		user_input = ''
 		z, v, R, SO, RS = (False,)*5
-		all_lines, all_labels, memory = LOAD.load_program_into_memory(file_name_input)
+		#LOAD
+		all_lines, all_labels, memory = LOAD.load_program_into_memory(file_name_input)	
 		if len(all_lines) == 0:
 			exit(0)
 		
@@ -108,6 +109,7 @@ def main():
 			window['-STEP-'].update('STEP: ' + str(i) + ', PC: ' + str(PC+1))
 			
 			#1
+			#FETCH
 			PC, F = FETCH.fetch(PC, all_lines, F)
 	
 			if not SO and not R:
@@ -119,6 +121,7 @@ def main():
 			
 			
 			#2
+			#Decode
 			D = DECODE.decode(PC, all_lines, all_labels, F)
 			if lines_left > 1:
 				PC, F = FETCH.fetch(PC, all_lines, F)	
@@ -133,7 +136,8 @@ def main():
 	
 	
 			#3
-			E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines)
+			#Execution
+			E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory)
 			if lines_left > 1:
 				D = DECODE.decode(PC, all_lines, all_labels, F)
 			if lines_left > 2:
@@ -151,7 +155,7 @@ def main():
 			#4
 			target, M = MEM.mem(E)
 			if lines_left > 1:
-				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines)
+				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory)
 			if lines_left > 2:
 				D = DECODE.decode(PC, all_lines, all_labels, F)
 			if lines_left > 3:
@@ -167,11 +171,11 @@ def main():
 	
 	
 			#5
-			PC, z, v, W = WB.write_back(reg_dict, target, PC, M, window)
+			PC, z, v, W = WB.write_back(reg_dict, memory, target, PC, M, window)
 			if lines_left > 1:
 				target, M = MEM.mem(E)
 			if lines_left > 2:
-				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines)
+				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory)
 			if lines_left > 3:
 				D = DECODE.decode(PC, all_lines, all_labels, F)
 	
@@ -186,11 +190,11 @@ def main():
 	
 			#6
 			if lines_left > 1:
-				PC, z, v, W = WB.write_back(reg_dict, target, PC, M, window)
+				PC, z, v, W = WB.write_back(reg_dict, memory, target, PC, M, window)
 			if lines_left > 2:	
 				target, M = MEM.mem(E)
 			if lines_left > 3:	
-				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines)
+				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory)
 	
 			if not SO and not R and not (PC >= len(all_lines)-1):
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
@@ -203,7 +207,7 @@ def main():
 	
 			#7
 			if lines_left > 2:
-				PC, z, v, W = WB.write_back(reg_dict, target, PC, M, window)
+				PC, z, v, W = WB.write_back(reg_dict, memory, target, PC, M, window)
 			if lines_left > 3:
 				target, M = MEM.mem(E)
 	
@@ -218,7 +222,7 @@ def main():
 	
 			#8
 			if lines_left > 3:
-				PC, z, v, W = WB.write_back(reg_dict, target, PC, M, window)
+				PC, z, v, W = WB.write_back(reg_dict, memory, target, PC, M, window)
 	
 			if not SO and not R and not (PC >= len(all_lines)-1):
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)

@@ -20,21 +20,24 @@ def flusher(PC, imm, all_lines, all_labels):
 				#print('PC+1 != imm', PC+1, imm)
 				all_lines[PC+1][0] = 'NOP'
 			else:
-				all_lines.insert((PC), ['NOP'])
-				all_labels = add_1_to(all_labels)
-				imm += 1
+				if imm > PC:
+					all_lines.insert((PC), ['NOP'])
+					all_labels = add_1_to(all_labels)
+					imm += 1
 				
 	else:
-		all_lines.insert((PC), ['NOP'])
-		all_lines.insert((PC), ['NOP'])	
-		all_labels = add_2_to(all_labels)
-		imm += 2
+		if imm > PC:
+			all_lines.insert((PC), ['NOP'])
+			all_lines.insert((PC), ['NOP'])	
+			all_labels = add_2_to(all_labels)
+			imm += 2
+
 	
 	return all_labels, imm
 	
 	
 
-def execute(reg_dict, E, D, F, PC, all_labels, all_lines):
+def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory):
 	E = copy.deepcopy(D)
 	
 	if E.ins == 'NOP':
@@ -71,9 +74,33 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines):
 	
 	# lw, sw, beq	
 	elif E.ins == 'lw':
-		E.result = int(reg_dict[E.rs])
+		if '(' in E.rs:
+			#print('We found our Array in lw')
+			#print((E.rs).split('('))
+			#print((E.rs).split('(')[1][:3])
+			mem_space = (E.rs).split('(')
+			mem_space[1] = mem_space[1][:3]
+			mem_space[1] = int(int(reg_dict[mem_space[1]]) / 2)
+			E.result = memory[mem_space[0]][mem_space[1]]
+		elif '$' in E.rs:
+			#print(E.rs)
+			#print(reg_dict[E.rs])
+			E.result = int(reg_dict[E.rs])
+		
 	elif E.ins == 'sw':
-		E.result = int(reg_dict[E.rd])
+		if '(' in E.rd:
+			#print('We found our Array in sw')
+			mem_space = (E.rd).split('(')
+			mem_space[1] = mem_space[1][:3]
+			mem_space[1] = int(int(reg_dict[mem_space[1]]) / 2)
+			E.result = memory[mem_space[0]][mem_space[1]]
+			#print('Memory: ')
+			#print(memory[mem_space[0]][mem_space[1]])
+		elif '$' in E.rd:
+			#print(E.rd)
+			#print(reg_dict[E.rd])
+			E.result = int(reg_dict[E.rd])
+		
 	elif E.ins == 'beq':
 		E.result = E.imm if int(reg_dict[E.rd]) == int(reg_dict[E.rs]) else 'none'
 		if E.result != 'none':
