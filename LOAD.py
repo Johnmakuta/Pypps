@@ -37,6 +37,8 @@ def load_program_into_memory(file_name):
 		elif not data_mode:
 			if not i+1 > len(line)-1:
 				dummy_line = copy.deepcopy(line[i+1])
+				if (dummy_line[0] == 'li') or (dummy_line[0] == 'addi') or (dummy_line[0] == 'subi') or (dummy_line[0] == 'sll'):
+					dummy_line.pop() 
 				if len(dummy_line) > 1:
 					dummy_line.pop(1)
 					for e in range(len(dummy_line)):
@@ -50,6 +52,8 @@ def load_program_into_memory(file_name):
 				
 				if len(line) > (i + 2):	
 					dummy_line = copy.deepcopy(line[i+2])
+					if (dummy_line[0] == 'li') or (dummy_line[0] == 'addi') or (dummy_line[0] == 'subi') or (dummy_line[0] == 'sll'):
+						dummy_line.pop()
 					if len(dummy_line) > 1:
 						dummy_line.pop(1)
 						for e in range(len(dummy_line)):
@@ -64,8 +68,8 @@ def load_program_into_memory(file_name):
 
 				if H:
 					all_lines.append(line[i])
-					all_lines.append(['NOP'])
-					all_lines.append(['NOP'])
+					#all_lines.append(['NOP'])
+					#all_lines.append(['NOP'])
 					#all_lines.append(['NOP'])
 					H = False
 				else:

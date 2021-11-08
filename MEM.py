@@ -5,7 +5,7 @@ def mem(E):
 	M = copy.deepcopy(E)
 	if M.ins == 'NOP':
 		target = 'X'
-		return target, M 
+		return target, M, M.result 
 	if (M.ins == 'li') or (M.ins == 'addi') or (M.ins == 'lw') or (M.ins == 'subi') or (M.ins == 'sll') or (M.ins == 'inc') or (M.ins == 'dec'):
 		target = M.rd
 	elif M.ins == 'sw':
@@ -17,5 +17,5 @@ def mem(E):
 	else:
 		target = 'U'
 	
-	return target, M
+	return target, M, M.result
 

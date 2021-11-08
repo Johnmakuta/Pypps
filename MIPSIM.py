@@ -141,7 +141,7 @@ def main():
 	
 			#3
 			#Execution
-			E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory)
+			E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, 'none', 'none')
 			if lines_left > 1:
 				D = DECODE.decode(PC, all_lines, all_labels, F)
 			if lines_left > 2:
@@ -157,9 +157,9 @@ def main():
 	
 	
 			#4
-			target, M = MEM.mem(E)
+			target, M, forward_result = MEM.mem(E)
 			if lines_left > 1:
-				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory)
+				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result, M)
 			if lines_left > 2:
 				D = DECODE.decode(PC, all_lines, all_labels, F)
 			if lines_left > 3:
@@ -177,9 +177,9 @@ def main():
 			#5
 			PC, z, v, W = WB.write_back(reg_dict, memory, target, PC, M, window)
 			if lines_left > 1:
-				target, M = MEM.mem(E)
+				target, M, forward_result = MEM.mem(E)
 			if lines_left > 2:
-				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory)
+				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result, M)
 			if lines_left > 3:
 				D = DECODE.decode(PC, all_lines, all_labels, F)
 	
@@ -196,9 +196,9 @@ def main():
 			if lines_left > 1:
 				PC, z, v, W = WB.write_back(reg_dict, memory, target, PC, M, window)
 			if lines_left > 2:	
-				target, M = MEM.mem(E)
+				target, M, forward_result = MEM.mem(E)
 			if lines_left > 3:	
-				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory)
+				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result, M)
 	
 			if not SO and not R and not (PC >= len(all_lines)-1):
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
@@ -213,7 +213,7 @@ def main():
 			if lines_left > 2:
 				PC, z, v, W = WB.write_back(reg_dict, memory, target, PC, M, window)
 			if lines_left > 3:
-				target, M = MEM.mem(E)
+				target, M, forward_result = MEM.mem(E)
 	
 			if not SO and not R and not (PC >= len(all_lines)-1):
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
