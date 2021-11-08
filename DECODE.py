@@ -27,16 +27,16 @@ def decode(PC, all_lines, all_labels, F):
 		D.imm = all_lines[PC][2]
 	
 	# inc, dec, bie
-	elif D.ins == 'inc': #replaces ble
-		D.op = '0101'
+	elif D.ins == 'inc': 
+		D.op = '0011'
 		D.func = '000'
 		D.imm = 'xxxxxxxxx'
-	elif D.ins == 'dec': #replaces beq
-		D.op = '0010'
+	elif D.ins == 'dec': 
+		D.op = '0100'
 		D.func = '000'
 		D.imm = 'xxxxxxxxx'
-	elif D.ins == 'bie': #replaces sll
-		D.op = '1111'
+	elif D.ins == 'bie': 
+		D.op = '0110'
 		D.func = '000'
 		D.imm = all_labels[all_lines[PC][2]]
 	

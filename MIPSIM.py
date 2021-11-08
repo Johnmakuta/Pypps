@@ -21,7 +21,7 @@ if not path.exists(file_name_input):
 
 def main():
 	# GUI
-	s = (20, 10)
+	s = (20, 15)
 	st = (18,10)
 	sw = (40, 4)
 	REG_section = [[sg.Text('Registers', key='-REGTEXT-', background_color='white', size=s, text_color='black')]]
@@ -31,11 +31,12 @@ def main():
 	E_section = [[sg.Text('Execute', key='-ETEXT-', background_color='white', size=sw, text_color='black')]]
 	M_section = [[sg.Text('Memory', key='-MTEXT-', background_color='white', size=sw, text_color='black')]]
 	W_section = [[sg.Text('Write back', key='-WTEXT-', background_color='white', size=sw, text_color='black')]]
+	MEMORY_section = [[sg.Text('Memory', key='-MEMORYTEXT-', background_color='white', size=s, text_color='black')]]
 	
 	layout = [[[sg.Text('Clock control')], [sg.Button('Mini step'), sg.Button('Step'), 
-			sg.Button('Run'), sg.Button('Restart'), sg.VerticalSeparator(), sg.Column(REG_section, element_justification = 'c'), sg.Column(FLAG_section, element_justification = 'c')],
+			sg.Button('Run'), sg.Button('Restart'), sg.VerticalSeparator(), sg.Column(REG_section, element_justification = 'c'), sg.Column(MEMORY_section, element_justification = 'c'), sg.Column(FLAG_section, element_justification = 'c')],
 			[sg.Column(F_section, element_justification = 'c')], [sg.Column(D_section, element_justification = 'c')], [sg.Column(E_section, element_justification = 'c')],
-			[sg.Column(M_section, element_justification = 'c')], [sg.Column(W_section, element_justification = 'c')], sg.Text('STEP: 0, PC: 0', key='-STEP-'), sg.Text('', key='-FINISHED-')]]
+			[sg.Column(M_section, element_justification = 'c')], [sg.Column(W_section, element_justification = 'c')], sg.Text('Clock cycle: 0, PC: 0', key='-STEP-'), sg.Text('', key='-FINISHED-')]]
 	
 	window = sg.Window('MIPSIM', layout, size=(900, 700), location=(2300,330))
 	
@@ -64,15 +65,17 @@ def main():
 		
 	def update_window(window, reg_dict):
 		window['-REGTEXT-'].update('Registers\n' + FIELDS.print_RF_string(reg_dict))
-		window['-FTEXT-'].update('Fetch\n' + F.print_fields_string())
-		window['-DTEXT-'].update('Decode\n' + D.print_fields_string())
-		window['-ETEXT-'].update('Execute\n' + E.print_fields_string())
-		window['-MTEXT-'].update('Memory\n' + M.print_fields_string())
-		window['-WTEXT-'].update('Write back\n' + W.print_fields_string())
+		window['-FTEXT-'].update('Fetch\n' + F.print_fields_string(reg_dict))
+		window['-DTEXT-'].update('Decode\n' + D.print_fields_string(reg_dict))
+		window['-ETEXT-'].update('Execute\n' + E.print_fields_string(reg_dict))
+		window['-MTEXT-'].update('Memory\n' + M.print_fields_string(reg_dict))
+		window['-WTEXT-'].update('Write back\n' + W.print_fields_string(reg_dict))
+		window['-MEMORYTEXT-'].update('Memory\n' + FIELDS.print_RF_string(memory))
+		
 	
 	def reset_text(window):
 		window['-REGTEXT-'].update('Registers\n')
-		window['-STEP-'].update('STEP: 0, PC: 0')
+		window['-STEP-'].update('Clock cycle: 0, PC: 0')
 		window['-FINISHED-'].update('')
 		window['-FLAGTEXT-'].update('Flags\nZero: Unknown\nOverflow: Unknown')
 		window['-FTEXT-'].update('Fetch\n')
@@ -80,6 +83,7 @@ def main():
 		window['-ETEXT-'].update('Execute\n')
 		window['-MTEXT-'].update('Memory\n')
 		window['-WTEXT-'].update('Write back')
+		window['-MEMORYTEXT-'].update('Memory')
 		
 	while True:
 		# setup
@@ -106,7 +110,7 @@ def main():
 					RS = False
 					break
 			
-			window['-STEP-'].update('STEP: ' + str(i) + ', PC: ' + str(PC+1))
+			window['-STEP-'].update('Clock cycle: ' + str(i) + ', PC: ' + str(hex((PC+1)*2)))
 			
 			#1
 			#FETCH
