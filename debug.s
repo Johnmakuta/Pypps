@@ -1,1 +1,5 @@
-li $r0, 320771 ;r0 ahahahahha
+li $r1, 5
+li $r1, 5
+li $r1, 5
+li $r1, 5
+li $r1, 5

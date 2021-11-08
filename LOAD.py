@@ -36,8 +36,20 @@ def load_program_into_memory(file_name):
 
 		elif not data_mode:
 			if not i+1 > len(line)-1:
-				for j in range(1, len(line[i])):
-					dummy_line = copy.deepcopy(line[i+1])
+				dummy_line = copy.deepcopy(line[i+1])
+				if len(dummy_line) > 1:
+					dummy_line.pop(1)
+					for e in range(len(dummy_line)):
+						if '(' in dummy_line[e]:
+							dummy_dummy_line = dummy_line[e].replace('(',' ').replace(')','').split()
+							dummy_line.pop()
+							dummy_line.append(dummy_dummy_line[0])
+							dummy_line.append(dummy_dummy_line[1])
+				if any(word in line[i][1] for word in dummy_line) and not line[i][0] == 'j' and not line[i][0] == 'beq' and not line[i][0] == 'ble' and not line[i][0] == 'bie':
+					H = True
+				
+				if len(line) > (i + 2):	
+					dummy_line = copy.deepcopy(line[i+2])
 					if len(dummy_line) > 1:
 						dummy_line.pop(1)
 						for e in range(len(dummy_line)):
@@ -45,12 +57,10 @@ def load_program_into_memory(file_name):
 								dummy_dummy_line = dummy_line[e].replace('(',' ').replace(')','').split()
 								dummy_line.pop()
 								dummy_line.append(dummy_dummy_line[0])
-								dummy_line.append(dummy_dummy_line[1])
-					if any(word in line[i][j] for word in line[i+1]) and not line[i][0] == 'j' and not line[i][0] == 'beq' and not line[i][0] == 'ble' and not line[i][0] == 'bie':
+								dummy_line.append(dummy_dummy_line[1])	
+			
+					if any(word in line[i][1] for word in dummy_line) and not line[i][0] == 'j' and not line[i][0] == 'beq' and not line[i][0] == 'ble' and not line[i][0] == 'bie':
 						H = True
-					if len(line) > (i + 2):
-						if any(word in line[i][j] for word in line[i+2]) and not line[i][0] == 'j' and not line[i][0] == 'beq' and not line[i][0] == 'ble' and not line[i][0] == 'bie':
-							H = True
 
 				if H:
 					all_lines.append(line[i])
