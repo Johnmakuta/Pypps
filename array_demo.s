@@ -1,17 +1,59 @@
 .data
-    array   .space 12
+    array   .space 256
 
 .text
-    li $r0, 600					
-    lw $r1, $r0					
-    li $r1, 50
-    sw $r1, $r0
     li $r0, 0
+    li $r1, 69
+    li $r2, 2
+    li $r3, 3
+    li $r4, 4
+    li $r5, 5
+    li $r6, 6
+    li $r7, 7
+
     sw $r1, array($r0)
-    lw $r0, array($r0)
-    li $r0, 2
-    li $r7, 69
+    addi $r0, 2
+    addi $r0, 0
+    sw $r2, array($r0)
+    addi $r0, 2
+    addi $r0, 0
+    sw $r3, array($r0)
+    addi $r0, 2
+    addi $r0, 0
+    sw $r4, array($r0)
+    addi $r0, 2
+    addi $r0, 0
+    sw $r5, array($r0)
+    addi $r0, 2
+    addi $r0, 0
+    sw $r6, array($r0)
+    addi $r0, 2
+    addi $r0, 0
     sw $r7, array($r0)
-    lw $r2, array($r0)
+    addi $r0, 2
+    addi $r0, 0
+
     li $r0, 0
+    addi $r0, 0
+
+    lw $r7, array($r0)
+    addi $r0, 2
+    addi $r0, 0
+    lw $r6, array($r0)
+    addi $r0, 2
+    addi $r0, 0
+    lw $r5, array($r0)
+    addi $r0, 2
+    addi $r0, 0
+    lw $r4, array($r0)
+    addi $r0, 2
+    addi $r0, 0
     lw $r3, array($r0)
+    addi $r0, 2
+    addi $r0, 0
+    lw $r2, array($r0)
+    addi $r0, 2
+    addi $r0, 0
+    lw $r1, array($r0)
+    addi $r0, 2
+    addi $r0, 0
