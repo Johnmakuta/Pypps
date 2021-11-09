@@ -1,12 +1,12 @@
 class fields:
 	def __init__(self):
 		self.ins = 'U'
-		self.op = 'U'
-		self.func = 'U'
-		self.rd = 'U'
-		self.rs = 'U'
-		self.rt = 'U'
-		self.imm = 'U'
+		self.op = '0000'
+		self.func = '000'
+		self.rd = '000'
+		self.rs = '000'
+		self.rt = '000'
+		self.imm = '000000000'
 		self.result = 'U'
 		
 		
