@@ -16,15 +16,15 @@ def decode(PC, all_lines, all_labels, F):
 	elif D.ins == 'addi':
 		D.op = '1000'
 		D.func = '000'
-		D.imm = all_lines[PC][2]
+		D.imm = all_lines[PC][3]
 	elif D.ins == 'subi':
 		D.op = '1001'
 		D.func = '000'
-		D.imm = all_lines[PC][2]
+		D.imm = all_lines[PC][3]
 	elif D.ins == 'sll':
 		D.op = '1111'
 		D.func = '000'
-		D.imm = all_lines[PC][2]
+		D.imm = all_lines[PC][3]
 	
 	# inc, dec, bie
 	elif D.ins == 'inc': 

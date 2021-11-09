@@ -73,11 +73,11 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result
 		
 
 	elif E.ins == 'addi':
-		E.result = rdb + int(E.imm)
+		E.result = rsb + int(E.imm)
 	elif E.ins == 'subi':
-		E.result = rdb - int(E.imm)
+		E.result = rsb - int(E.imm)
 	elif E.ins == 'sll':
-		E.result = rdb << int(E.imm)
+		E.result = rsb << int(E.imm)
 	
 	# lw, sw, beq	
 	elif E.ins == 'lw':
