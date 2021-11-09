@@ -21,7 +21,7 @@ if not path.exists(file_name_input):
 
 def main():
 	# GUI
-	s = (20, 15)
+	s = (20, 16)
 	st = (18,10)
 	sw = (40, 4)
 	REG_section = [[sg.Text('Registers', key='-REGTEXT-', background_color='white', size=s, text_color='black')]]
@@ -101,8 +101,7 @@ def main():
 		while PC < (len(all_lines)-1):
 			
 			lines_left = (len(all_lines)-1) - PC
-			# debug
-			#print('here')
+
 			if not SO and not R:
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
 				if RS:
@@ -250,7 +249,7 @@ def main():
 				GUI_event, values = window.read()
 				if GUI_event == sg.WIN_CLOSED:
 					# debug
-					print(all_lines)
+					print('\n', all_lines)
 					exit(0)
 				elif GUI_event == "Restart":
 					reset_text(window)

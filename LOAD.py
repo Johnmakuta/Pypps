@@ -29,51 +29,11 @@ def load_program_into_memory(file_name):
 		elif any(':' in word for word in line[i]) and not data_mode:
 			all_labels[line[i][0].replace(':', '')] = (len(all_lines))
 		elif data_mode:
-			#print(line[i])
-			#print(int(int(line[i][2]))/2)
 			size = round(int(int(line[i][2]))/2)
 			memory[line[i][0]] = list(0  for n in range(size))
 
 		elif not data_mode:
-			if not i+1 > len(line)-1:
-				dummy_line = copy.deepcopy(line[i+1])
-				if (dummy_line[0] == 'li') or (dummy_line[0] == 'addi') or (dummy_line[0] == 'subi') or (dummy_line[0] == 'sll'):
-					dummy_line.pop() 
-				if len(dummy_line) > 1:
-					dummy_line.pop(1)
-					for e in range(len(dummy_line)):
-						if '(' in dummy_line[e]:
-							dummy_dummy_line = dummy_line[e].replace('(',' ').replace(')','').split()
-							dummy_line.pop()
-							dummy_line.append(dummy_dummy_line[0])
-							dummy_line.append(dummy_dummy_line[1])
-				if any(word in line[i][1] for word in dummy_line) and not line[i][0] == 'j' and not line[i][0] == 'beq' and not line[i][0] == 'ble' and not line[i][0] == 'bie':
-					H = True
-				
-				if len(line) > (i + 2):	
-					dummy_line = copy.deepcopy(line[i+2])
-					if (dummy_line[0] == 'li') or (dummy_line[0] == 'addi') or (dummy_line[0] == 'subi') or (dummy_line[0] == 'sll'):
-						dummy_line.pop()
-					if len(dummy_line) > 1:
-						dummy_line.pop(1)
-						for e in range(len(dummy_line)):
-							if '(' in dummy_line[e]:
-								dummy_dummy_line = dummy_line[e].replace('(',' ').replace(')','').split()
-								dummy_line.pop()
-								dummy_line.append(dummy_dummy_line[0])
-								dummy_line.append(dummy_dummy_line[1])	
-			
-					if any(word in line[i][1] for word in dummy_line) and not line[i][0] == 'j' and not line[i][0] == 'beq' and not line[i][0] == 'ble' and not line[i][0] == 'bie':
-						H = True
-
-				if H:
-					all_lines.append(line[i])
-					#all_lines.append(['NOP'])
-					#all_lines.append(['NOP'])
-					#all_lines.append(['NOP'])
-					H = False
-				else:
-					all_lines.append(line[i])
+			all_lines.append(line[i])
 
 	if not len(line):
 		print('File is empty.')
@@ -83,8 +43,5 @@ def load_program_into_memory(file_name):
 	if not any(':' in word for word in line[i]) and not data_mode:
 		all_lines.append(line[i])
 		
-	#print(memory)
-	# debug
-	print(all_lines)
-	#exit(0)
+	print('\n', all_lines)
 	return all_lines, all_labels, memory
