@@ -78,6 +78,7 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result
 		E.result = rsb - int(E.imm)
 	elif E.ins == 'sll':
 		E.result = rsb << int(E.imm)
+		
 	
 	# lw, sw, beq	
 	elif E.ins == 'lw':
@@ -128,5 +129,7 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result
 	
 	else:
 		result = 'U'
-		
+
+
+	
 	return E, D, F, all_labels
