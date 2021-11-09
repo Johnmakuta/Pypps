@@ -15,7 +15,8 @@ class fields:
 		if self.ins == 'U':
 			return ''
 		if self.ins == 'NOP':
-			return '[no operation]'
+			#return '[no operation]'
+			return '0000 000 000 000 000000 000'
 			
 		imm_bin = self.imm
 		temp = 'none'
@@ -54,7 +55,7 @@ class fields:
 			rs_reg_num = list(reg_dict.keys()).index(rs_reg_num)
 			rs_reg_num = str(bin(rs_reg_num)[2:].zfill(3))
 		
-		return 'instruction: ' + '\n' + str(self.op) + ' ' + str(self.func) + ' ' + rd_reg_num + ' ' + rs_reg_num + ' ' + rt_reg_num + ' ' + str(imm_bin)
+		return str(self.op) + ' ' + rd_reg_num + ' ' + rs_reg_num + ' ' + rt_reg_num + ' ' + str(imm_bin) + ' ' + str(self.func)
 
 
 

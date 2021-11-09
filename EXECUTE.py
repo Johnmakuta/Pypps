@@ -7,7 +7,7 @@ def flusher(PC, imm, all_lines, all_labels):
 			all_lines[PC+1][0] = 'NOP'
 
 	
-	return all_labels, imm
+	return all_lines
 	
 
 def HDU(E, M, forward_result_M, reg_dict):
@@ -32,7 +32,7 @@ def HDU(E, M, forward_result_M, reg_dict):
 		dummy_E.rs = dummy_dummy[1]
 	
 	if M != 'none' and forward_result_M != 'x':
-		if (E.rd == M.rd) and E.rd != 'x' and E.ins == 'sw':
+		if (E.rd == M.rd) and E.rd != 'x' and (E.ins == 'sw' or E.ins == 'beq' or E.ins == 'ble' or E.ins == 'bie'):
 			rdb = int(forward_result_M)
 		if (E.rs == M.rd) or (dummy_E.rs == M.rd) and E.rs != 'x':
 			rsb = int(forward_result_M)
@@ -57,7 +57,7 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result
 		E.result = E.imm
 	elif E.ins == 'j':
 		E.result = E.imm
-		all_labels, E.result = flusher(PC, E.imm, all_lines, all_labels)	
+		all_lines = flusher(PC, E.imm, all_lines, all_labels)	
 		
 		
 	# inc, dec, bie
@@ -69,7 +69,7 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result
 		E.result = E.imm if (rdb % 2 == 0) else 'none'
 		
 		if E.result != 'none':
-			all_labels, E.result = flusher(PC, E.imm, all_lines, all_labels)	
+			all_lines = flusher(PC, E.imm, all_lines, all_labels)	
 		
 
 	elif E.ins == 'addi':
@@ -100,12 +100,12 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result
 	elif E.ins == 'beq':
 		E.result = E.imm if rdb == rsb else 'none'
 		if E.result != 'none':
-			all_labels, E.result = flusher(PC, E.imm, all_lines, all_labels)	
+			all_lines = flusher(PC, E.imm, all_lines, all_labels)	
 
 	elif E.ins == 'ble':
 		E.result = E.imm if rdb <= rsb else 'none'
 		if E.result != 'none':
-			all_labels, E.result = flusher(PC, E.imm, all_lines, all_labels)		
+			all_lines = flusher(PC, E.imm, all_lines, all_labels)		
 
 		
 	# or, xor, slt, add, div, mul
