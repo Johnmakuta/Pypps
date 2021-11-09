@@ -38,10 +38,6 @@ def load_program_into_memory(file_name):
 	if not len(line):
 		print('File is empty.')
 		exit(0)
-
-
-	if not any(':' in word for word in line[i]) and not data_mode:
-		all_lines.append(line[i])
 		
 	print('\n', all_lines)
 	return all_lines, all_labels, memory
