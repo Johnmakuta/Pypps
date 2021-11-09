@@ -7,7 +7,7 @@ def decode(PC, all_lines, all_labels, F):
 	if D.ins == 'NOP':
 		D.op, D.func, D.imm = 'xxx', 'xxxx', 'xxxxxxxxx'
 		return D
-		
+	
 	# li, addi, subi, sll
 	if D.ins == 'li':
 		D.op = '1100'
@@ -94,5 +94,22 @@ def decode(PC, all_lines, all_labels, F):
 	else:
 		D.op = 'U'
 		D.func = 'U'
+		
+	
+	if D.imm != 'xxxxxxxxx':
+		max_r = 0
+		min_r = 0
+		if D.ins == 'li':
+			max_r = 255
+			min_r = -256
+		elif D.ins == 'addi' or D.ins == 'subi' or D.ins == 'sll':
+			max_r = 31
+			min_r = -32
+		if max_r != 0:
+			if int(D.imm) > max_r: 
+				D.imm = int(D.imm) - (round(int(D.imm)/(max_r+1))) * (max_r+1)
+			elif int(D.imm) < min_r:
+				D.imm = (max_r+1) + (int(D.imm) - (min_r))
+		
 	
 	return D

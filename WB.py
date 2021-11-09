@@ -24,12 +24,6 @@ def write_back(reg_dict, memory, target, PC, M, window):
 	else:
 		max_r = 32767
 		min_r = -32768
-		if M.ins == 'li':
-			max_r = 255
-			min_r = -256
-		elif M.ins == 'addi' or M.ins == 'subi' or M.ins == 'sll':
-			max_r = 31
-			min_r = -32
 		if int(result) > max_r: 
 			result = int(result) - (round(int(result)/(max_r+1))) * (max_r+1)
 			z = check_z(result)

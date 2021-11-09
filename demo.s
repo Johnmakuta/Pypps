@@ -1,22 +1,22 @@
-li $r0, 600					
-lw $r1, $r0					
-j over_there    			
+li $r0, 30					;r0 = 30
+lw $r1, $r0					;r1 = 30					
+j over_there    			;go to over_there
 
 addi $r0, 100				
 
 
 over_there:
-addi $r0, $r0, 50				
-sw $r0, $r1					
-add $r0, $r0, $r0 			
-lw $r1, $r0					
-beq $r0, $r1, right_here 	
+addi $r0, $r0, 10				;r0 = 40
+sw $r0, $r1						;r1 = 40
+add $r0, $r0, $r0 				;r0 = 80
+lw $r1, $r0						;r1 = 80
+beq $r0, $r1, right_here 		;go to right_there
 
 j dont_go_there		
 
 right_here:
-subi $r0, $r0, 1000				
-or $r0, $r1, $r0			
+subi $r0, $r0, 1				;r0 = 70				
+or $r0, $r1, $r0
 xor $r0, $r1, $r0			
 slt $r2, $r0, $r1			
 
