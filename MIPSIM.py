@@ -38,7 +38,7 @@ def main():
 			[sg.Column(F_section, element_justification = 'c')], [sg.Column(D_section, element_justification = 'c')], [sg.Column(E_section, element_justification = 'c')],
 			[sg.Column(M_section, element_justification = 'c')], [sg.Column(W_section, element_justification = 'c')], sg.Text('Clock cycle: 0, PC: 0', key='-STEP-'), sg.Text('', key='-FINISHED-')]]
 	
-	window = sg.Window('MIPSIM', layout, size=(900, 700), location=(2300,330))
+	window = sg.Window('MIPSIM', layout, size=(900, 750), location=(300,330))
 	
 	def ask_window(R, RS, SO, window, reg_dict):
 		while True:

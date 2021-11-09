@@ -29,24 +29,26 @@ class fields:
 				imm_bin = bin(int(temp))[2:].zfill(9)
 			else:
 				imm_bin = bin((1<<16) + int(temp))[2:].zfill(9)
+		else:
+			self.imm = '000000000'
 
 		try:
 			rd_reg_num = list(reg_dict.keys()).index(self.rd)
 			rd_reg_num = str(bin(rd_reg_num)[2:].zfill(3))
 		except ValueError:
-			rd_reg_num = 'xxx'
+			rd_reg_num = '000'
 		
 		try:
 			rs_reg_num = list(reg_dict.keys()).index(self.rs)
 			rs_reg_num = str(bin(rs_reg_num)[2:].zfill(3))
 		except ValueError:
-			rs_reg_num = 'xxx'
+			rs_reg_num = '000'
 			
 		try:
 			rt_reg_num = list(reg_dict.keys()).index(self.rt)
 			rt_reg_num = str(bin(rt_reg_num)[2:].zfill(3))
 		except ValueError:
-			rt_reg_num = 'xxx'
+			rt_reg_num = '000'
 
 		if '(' in self.rs:
 			rs_reg_num = self.rs

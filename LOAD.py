@@ -4,11 +4,12 @@ def load_program_into_memory(file_name):
 	all_lines, line, dummy_line = [], [], []
 	all_labels, memory = {}, {}
 	H, data_mode = False, False
-	target = '#'
 	with open(file_name) as test_file:
 		for file_line in test_file:
 			if file_line.startswith('#') or file_line.startswith(';') or file_line == '\n' or file_line == '':
-				pass
+				continue
+			elif not file_line.strip():
+				continue
 			else:
 				file_line = file_line.replace(',', '')
 				file_line = file_line.split(';', 1)[0]
@@ -28,6 +29,9 @@ def load_program_into_memory(file_name):
 
 		elif any(':' in word for word in line[i]) and not data_mode:
 			all_labels[line[i][0].replace(':', '')] = (len(all_lines))
+			if any('$' in word for word in line[i]):
+				line[i].pop(0)
+				all_lines.append(line[i])
 		elif data_mode:
 			size = round(int(int(line[i][2]))/2)
 			memory[line[i][0]] = list(0  for n in range(size))
@@ -39,5 +43,5 @@ def load_program_into_memory(file_name):
 		print('File is empty.')
 		exit(0)
 		
-	print('\n', all_lines)
+	print('\n', all_lines, '\n\n', all_labels)
 	return all_lines, all_labels, memory
