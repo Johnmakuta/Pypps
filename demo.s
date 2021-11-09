@@ -22,7 +22,7 @@ slt $r2, $r0, $r1
 
 li $r2, 2					
 div $r1, $r1, $r2			
-sll $r1, $r1, 2					
+sll $r1, $r1, 1					
 ble $r1, $r2, woo			
 
 woo:

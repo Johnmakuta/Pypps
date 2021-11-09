@@ -32,7 +32,7 @@ def HDU(E, M, forward_result_M, reg_dict):
 		dummy_E.rs = dummy_dummy[1]
 	
 	if M != 'none' and forward_result_M != 'x':
-		if (E.rd == M.rd) and E.rd != 'x':
+		if (E.rd == M.rd) and E.rd != 'x' and E.ins == 'sw':
 			rdb = int(forward_result_M)
 		if (E.rs == M.rd) or (dummy_E.rs == M.rd) and E.rs != 'x':
 			rsb = int(forward_result_M)
@@ -126,6 +126,7 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result
 			
 	elif E.ins == 'div':
 		E.result = rsb / rtb
+		print(E.result, '=', rsb, '/', rtb)
 	
 	else:
 		result = 'U'
