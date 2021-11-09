@@ -23,7 +23,7 @@ def main():
 	# GUI
 	s = (20, 16)
 	st = (18,10)
-	sw = (40, 4)
+	sw = (40, 2)
 	REG_section = [[sg.Text('Registers', key='-REGTEXT-', background_color='white', size=s, text_color='black')]]
 	FLAG_section = [[sg.Text('Flags\nZero: Unknown\nOverflow: Unknown', key='-FLAGTEXT-', background_color='white', size=st, text_color='black')]]
 	F_section = [[sg.Text('Fetch', key='-FTEXT-', background_color='white', size=sw, text_color='black')]]
@@ -38,7 +38,7 @@ def main():
 			[sg.Column(F_section, element_justification = 'c')], [sg.Column(D_section, element_justification = 'c')], [sg.Column(E_section, element_justification = 'c')],
 			[sg.Column(M_section, element_justification = 'c')], [sg.Column(W_section, element_justification = 'c')], sg.Text('Clock cycle: 0, PC: 0', key='-STEP-'), sg.Text('', key='-FINISHED-')]]
 	
-	window = sg.Window('MIPSIM', layout, size=(900, 750), location=(300,330))
+	window = sg.Window('MIPSIM', layout, size=(950, 650), location=(100,330))
 	
 	def ask_window(R, RS, SO, window, reg_dict):
 		while True:
