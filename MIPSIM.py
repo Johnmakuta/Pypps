@@ -109,7 +109,7 @@ def main():
 					RS = False
 					break
 			
-			window['-STEP-'].update('Clock cycle: ' + str(i) + ', PC: ' + str(hex((PC+1)*2)))
+			window['-STEP-'].update('Clock cycle: ' + str(i-1) + ', PC: ' + str(hex((PC+1)*2)) + ' ' + str(PC))
 			
 			#1
 			#FETCH
@@ -156,7 +156,7 @@ def main():
 	
 	
 			#4
-			target, M, forward_result = MEM.mem(E)
+			target, M, forward_result, F, D, all_lines = MEM.mem(E, F, D, all_lines, PC)
 			if lines_left > 1:
 				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result, M)
 			if lines_left > 2:
@@ -176,7 +176,7 @@ def main():
 			#5
 			PC, z, v, W = WB.write_back(reg_dict, memory, target, PC, M, window)
 			if lines_left > 1:
-				target, M, forward_result = MEM.mem(E)
+				target, M, forward_result, F, D, all_lines = MEM.mem(E, F, D, all_lines, PC)
 			if lines_left > 2:
 				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result, M)
 			if lines_left > 3:
@@ -195,7 +195,7 @@ def main():
 			if lines_left > 1:
 				PC, z, v, W = WB.write_back(reg_dict, memory, target, PC, M, window)
 			if lines_left > 2:	
-				target, M, forward_result = MEM.mem(E)
+				target, M, forward_result, F, D, all_lines = MEM.mem(E, F, D, all_lines, PC)
 			if lines_left > 3:	
 				E, D, F, all_labels = EXECUTE.execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result, M)
 	
@@ -212,7 +212,7 @@ def main():
 			if lines_left > 2:
 				PC, z, v, W = WB.write_back(reg_dict, memory, target, PC, M, window)
 			if lines_left > 3:
-				target, M, forward_result = MEM.mem(E)
+				target, M, forward_result, F, D, all_lines = MEM.mem(E, F, D, all_lines, PC)
 	
 			if not SO and not R and not (PC >= len(all_lines)-1):
 				R, RS, SO, GUI_event = ask_window(R, RS, SO, window, reg_dict)
@@ -248,8 +248,6 @@ def main():
 			while True:
 				GUI_event, values = window.read()
 				if GUI_event == sg.WIN_CLOSED:
-					# debug
-					print('\n', all_lines)
 					exit(0)
 				elif GUI_event == "Restart":
 					reset_text(window)

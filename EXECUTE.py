@@ -1,14 +1,5 @@
 import copy
 
-def flusher(PC, imm, all_lines, all_labels):
-	if PC != imm:
-		all_lines[PC][0] = 'NOP'
-		if (PC+1) != imm:
-			all_lines[PC+1][0] = 'NOP'
-
-	
-	return all_lines
-	
 
 def HDU(E, M, forward_result_M, reg_dict):
 	try:
@@ -26,13 +17,16 @@ def HDU(E, M, forward_result_M, reg_dict):
 	except KeyError:
 		rtb = 'none'
 	
+	
+	
 	dummy_E = copy.deepcopy(E)
 	if '(' in dummy_E.rs:
 		dummy_dummy = dummy_E.rs.replace('(',' ').replace(')','').split()
 		dummy_E.rs = dummy_dummy[1]
-	
-	if M != 'none' and forward_result_M != 'x':
-		if (E.rd == M.rd) and E.rd != 'x' and (E.ins == 'sw' or E.ins == 'beq' or E.ins == 'ble' or E.ins == 'bie'):
+		rsb = int(reg_dict[dummy_E.rs])
+
+	if M != 'none' and forward_result_M != 'x' and forward_result_M != 'none':
+		if (E.rd == M.rd) and E.rd != 'x' and (E.ins == 'sw' or E.ins == 'beq' or E.ins == 'ble' or E.ins == 'bie' or E.ins == 'inc' or E.ins == 'dec'):
 			rdb = int(forward_result_M)
 		if (E.rs == M.rd) or (dummy_E.rs == M.rd) and E.rs != 'x':
 			rsb = int(forward_result_M)
@@ -42,9 +36,7 @@ def HDU(E, M, forward_result_M, reg_dict):
 	return rdb, rsb, rtb
 
 def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result_M, M):
-	E = copy.deepcopy(D)
-	
-	
+	E = copy.deepcopy(D)	
 
 	rdb, rsb, rtb = HDU(E, M, forward_result_M, reg_dict)
 	
@@ -57,7 +49,6 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result
 		E.result = E.imm
 	elif E.ins == 'j':
 		E.result = E.imm
-		all_lines = flusher(PC, E.imm, all_lines, all_labels)	
 		
 		
 	# inc, dec, bie
@@ -67,9 +58,7 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result
 		E.result = rdb - 1
 	elif E.ins == 'bie': 
 		E.result = E.imm if (rdb % 2 == 0) else 'none'
-		
-		if E.result != 'none':
-			all_lines = flusher(PC, E.imm, all_lines, all_labels)	
+			
 		
 
 	elif E.ins == 'addi':
@@ -99,18 +88,14 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result
 		
 	elif E.ins == 'beq':
 		E.result = E.imm if rdb == rsb else 'none'
-		if E.result != 'none':
-			all_lines = flusher(PC, E.imm, all_lines, all_labels)	
 
 	elif E.ins == 'ble':
 		E.result = E.imm if rdb <= rsb else 'none'
-		if E.result != 'none':
-			all_lines = flusher(PC, E.imm, all_lines, all_labels)		
 
 		
 	# or, xor, slt, add, div, mul
 	elif E.ins == 'or':
-		E.result = rsb or rtb
+		E.result = rsb | rtb
 		
 	elif E.ins == 'xor':
 		E.result = rsb ^ rtb
@@ -126,11 +111,8 @@ def execute(reg_dict, E, D, F, PC, all_labels, all_lines, memory, forward_result
 			
 	elif E.ins == 'div':
 		E.result = rsb / rtb
-		print(E.result, '=', rsb, '/', rtb)
 	
 	else:
 		result = 'U'
 
-
-	
 	return E, D, F, all_labels

@@ -3,9 +3,9 @@ import copy
 def decode(PC, all_lines, all_labels, F):
 
 	D = copy.deepcopy(F)
-	D.ins = all_lines[PC][0]
+	
 	if D.ins == 'NOP':
-		D.op, D.func, D.imm = 'xxx', 'xxxx', 'xxxxxxxxx'
+		D.op, D.func, D.imm = '0000', '000', '000000000'
 		return D
 	
 	# li, addi, subi, sll

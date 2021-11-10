@@ -1,4 +1,4 @@
-.data
+ .data
     mem .space  256
 .text
     li $r0, 16
@@ -29,21 +29,21 @@
     li $r5, 16  ; a0 = 0010hex
     li $r6, 5   ; a1 = 0005hex
 while:
-    li $r7, 8   ; $zero
-    ble $r6, $r7, endloop    ; branch if (0 <= a1)
-    subi $r6, $r6, 1         ; a1 = a1 - 1
+    li $r7, 0   ; $zero
+    ble $r6, $r7, endloop    ; branch if (a1 <= 0)
+    dec $r6         ; a1 = a1 - 1
     lw $r4, mem($r5)    ; t0 = mem[a0]
 if:
     li $r7, 255
     inc $r7         ; r7 = 256 = 0100hex
-    ble $r4, $r7, else
+    ble $r4, $r7, else		; branch to else if (t0 <= 0100hex)
     li $r7, 8
     div $r0, $r0, $r7
     or $r1, $r1, $r0
     li $r7, 255
     sll $r7, $r7, 8
     sw $r7, mem($r5)
-    ble $r7, $r5, endif 
+    j endif
 else:
     li $r7, 4
     mul $r2, $r2, $r7

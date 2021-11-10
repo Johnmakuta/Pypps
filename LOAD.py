@@ -43,5 +43,4 @@ def load_program_into_memory(file_name):
 		print('File is empty.')
 		exit(0)
 		
-	print('\n', all_lines, '\n\n', all_labels)
 	return all_lines, all_labels, memory
