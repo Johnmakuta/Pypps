@@ -30,11 +30,11 @@ def decode(PC, all_lines, all_labels, F):
 	elif D.ins == 'inc': 
 		D.op = '0011'
 		D.func = '000'
-		D.imm = 'xxxxxxxxx'
+		D.imm = '000000000'
 	elif D.ins == 'dec': 
 		D.op = '0100'
 		D.func = '000'
-		D.imm = 'xxxxxxxxx'
+		D.imm = '000000000'
 	elif D.ins == 'bie': 
 		D.op = '0110'
 		D.func = '000'
@@ -45,11 +45,11 @@ def decode(PC, all_lines, all_labels, F):
 	elif D.ins == 'lw':
 		D.op = '1000'
 		D.func = '000'
-		D.imm = 'xxxxxxxxx'
+		D.imm = '000000000'
 	elif D.ins == 'sw':
 		D.op = '1000'
 		D.func = '000'
-		D.imm = 'xxxxxxxxx'
+		D.imm = '000000000'
 	elif D.ins == 'beq':
 		D.op = '0010'
 		D.func = '000'
@@ -63,27 +63,27 @@ def decode(PC, all_lines, all_labels, F):
 	elif D.ins == 'or':
 		D.op = '0000'
 		D.func = '001'
-		D.imm = 'xxxxxxxxx'
+		D.imm = '000000000'
 	elif D.ins == 'xor':
 		D.op = '0000'
 		D.func = '010'
-		D.imm = 'xxxxxxxxx'
+		D.imm = '000000000'
 	elif D.ins == 'slt':
 		D.op = '0000'
 		D.func = '011'
-		D.imm = 'xxxxxxxxx'
+		D.imm = '000000000'
 	elif D.ins == 'add':
 		D.op = '0000'
 		D.func = '000'
-		D.imm = 'xxxxxxxxx'
+		D.imm = '000000000'
 	elif D.ins == 'div':
 		D.op = '0000'
 		D.func = '100'
-		D.imm = 'xxxxxxxxx'
+		D.imm = '000000000'
 	elif D.ins == 'mul':
 		D.op = '0000'
 		D.func = '101'
-		D.imm = 'xxxxxxxxx'
+		D.imm = '000000000'
 	
 	# j
 	elif D.ins == 'j':
@@ -96,7 +96,7 @@ def decode(PC, all_lines, all_labels, F):
 		D.func = 'U'
 		
 	
-	if D.imm != 'xxxxxxxxx':
+	if D.imm != '000000000':
 		max_r = 0
 		min_r = 0
 		if D.ins == 'li':

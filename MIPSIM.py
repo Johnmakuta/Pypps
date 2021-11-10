@@ -109,7 +109,7 @@ def main():
 					RS = False
 					break
 			
-			window['-STEP-'].update('Clock cycle: ' + str(i-1) + ', PC: ' + str(hex((PC+1)*2)) + ' ' + str(PC))
+			window['-STEP-'].update('Clock cycle: ' + str(i-1) + ', PC: ' + str(hex((PC+1)*2)))
 			
 			#1
 			#FETCH

@@ -26,9 +26,15 @@ class fields:
 			except ValueError:
 				temp = int(self.imm)
 			if temp != 'none':
-				imm_bin = bin(int(temp))[2:].zfill(9)
+				if self.ins == 'li':
+					fill = 9
+				else:
+					fill = 6
+				imm_bin = bin(int(temp))[2:].zfill(fill)
 			else:
-				imm_bin = bin((1<<16) + int(temp))[2:].zfill(9)
+				imm_bin = bin((1<<fill) + int(temp))[2:].zfill(fill)
+				
+				
 		else:
 			self.imm = '000000000'
 
@@ -56,6 +62,10 @@ class fields:
 			rs_reg_num = dummy_dummy[1]
 			rs_reg_num = list(reg_dict.keys()).index(rs_reg_num)
 			rs_reg_num = str(bin(rs_reg_num)[2:].zfill(3))
+		
+		if self.ins == 'li':
+			imm_bin = str(imm_bin)
+			return str(self.op) + ' ' + rd_reg_num + ' ' + rs_reg_num + ' ' + str(imm_bin[0]) + str(imm_bin[1]) + str(imm_bin[2]) + ' ' + str(imm_bin[3]) + str(imm_bin[4]) + str(imm_bin[5]) + str(imm_bin[6]) + str(imm_bin[7]) + str(imm_bin[8]) + ' ' + str(self.func)
 		
 		return str(self.op) + ' ' + rd_reg_num + ' ' + rs_reg_num + ' ' + rt_reg_num + ' ' + str(imm_bin) + ' ' + str(self.func)
 
